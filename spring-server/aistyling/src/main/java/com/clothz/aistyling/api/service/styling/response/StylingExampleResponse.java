@@ -9,7 +9,7 @@ public record StylingExampleResponse(String image, String prompt) {
         this.image = image;
         this.prompt = prompt;
     }
-    public static StylingExampleResponse of(Styling styling) {
+    public static StylingExampleResponse from(Styling styling) {
         return StylingExampleResponse.builder()
                 .image(styling.getImage())
                 .prompt(styling.getPrompt())

@@ -11,7 +11,7 @@ public record HomeResponse(String image, String sentence) {
         this.sentence = sentence;
     }
 
-    public static HomeResponse of(Home home) {
+    public static HomeResponse from(Home home) {
         return HomeResponse.builder()
                 .image(home.getImage())
                 .sentence(home.getSentence())

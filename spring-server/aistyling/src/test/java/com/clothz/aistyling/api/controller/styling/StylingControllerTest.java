@@ -40,8 +40,8 @@ class StylingControllerTest {
         //given
         given(stylingService.getImageAndPrompt()).willReturn(
                 List.of(
-                        StylingExampleResponse.of(new Styling("images1", "prompt example 1")),
-                        StylingExampleResponse.of(new Styling("images2", "prompt example 2"))
+                        StylingExampleResponse.from(new Styling("images1", "prompt example 1")),
+                        StylingExampleResponse.from(new Styling("images2", "prompt example 2"))
                 ));
 
         //when

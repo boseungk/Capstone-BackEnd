@@ -28,8 +28,8 @@ public class HomeServiceTest {
         Assertions.assertThat(imageAndSentence)
                 .hasSize(2)
                 .containsExactlyInAnyOrder(
-                        HomeResponse.of(new Home("image1", "introduce1")),
-                        HomeResponse.of(new Home("image2", "introduce2"))
+                        HomeResponse.from(new Home("image1", "introduce1")),
+                        HomeResponse.from(new Home("image2", "introduce2"))
                 );
     }
 }

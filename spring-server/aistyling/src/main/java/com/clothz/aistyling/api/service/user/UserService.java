@@ -32,12 +32,13 @@ public class UserService {
     private final ObjectMapper objectMapper;
 
     public UserSingUpResponse signUp(final UserCreateRequest request) {
+        checkSameEmail(request.email());
         final String encodePassword = passwordEncoder.encode(request.password());
         final User user = userRepository.save(createUserEntity(request, encodePassword));
         return UserSingUpResponse.from(user);
     }
 
-    public void sameCheckEmail(final String email) {
+    private void checkSameEmail(final String email) {
         userRepository.findByEmail(email).ifPresent(n -> {
             throw new DuplicateKeyException("Email already exists");
         });
@@ -84,18 +85,13 @@ public class UserService {
     }
 
     public UserUpdateResponse updateUser(UserUpdateRequest request) throws NoSuchElementException {
-        User user = checkEmailExist(request.email());
-        user.updateNickname(request.nickname());
-        user.updatePassword(request.password());
-        User updateUser = userRepository.save(user);
-        return UserUpdateResponse.of(user);
-    }
-
-
-    public User checkEmailExist(final String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> {
+        User user = userRepository.findByEmail(request.email()).orElseThrow(() -> {
             throw new NoSuchElementException("Email does not exists");
         });
+        user.updateNickname(request.nickname());
+        user.updatePassword(passwordEncoder.encode(request.password()));
+        User updateUser = userRepository.save(user);
+        return UserUpdateResponse.from(user);
     }
 
 }
