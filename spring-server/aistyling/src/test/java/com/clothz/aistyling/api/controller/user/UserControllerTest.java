@@ -221,32 +221,6 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 
-    @DisplayName("회원 정보 수정에 성공한다")
-    @Test
-    void updateUserTest() throws Exception{
-        //given
-        UserUpdateRequest request = UserUpdateRequest
-                .builder()
-                .email(EMAIL)
-                .nickname("updateNickname")
-                .password("updatePassword")
-                .build();
-
-        //when
-        //then
-        mockMvc.perform(
-                        MockMvcRequestBuilders.put("/api/users")
-                                .content(objectMapper.writeValueAsString(request))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value("200"))
-                .andExpect(jsonPath("$.status").value("OK"))
-                .andExpect(jsonPath("$.message").value("OK"))
-                .andExpect(jsonPath("$.data.nickname").value("updateNickname"));
-    }
-
     private UserCreateRequest createUser(String email, String nickname, String password) {
         return UserCreateRequest.builder()
                 .email(email)

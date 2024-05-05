@@ -60,8 +60,14 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    public ApiResponse<UserUpdateResponse> updateUser(@RequestBody UserUpdateRequest request){
-        UserUpdateResponse response = userService.updateUser(request);
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ApiResponse<UserUpdateResponse> updateUser(@RequestBody UserUpdateRequest request,@AuthenticationPrincipal final CustomUserDetails userDetails) throws JsonProcessingException{
+        final var userInfoResponse = userService.getUserInfo(userDetails.getId());
+        UserUpdateResponse response = userService.updateUser(UserUpdateRequest.builder()
+                        .email(userInfoResponse.email())
+                        .password(request.password())
+                        .nickname(userInfoResponse.nickname())
+                        .build());
         return ApiResponse.ok(response);
     }
 }
