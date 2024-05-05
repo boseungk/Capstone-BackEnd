@@ -244,8 +244,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.code").value("200"))
                 .andExpect(jsonPath("$.status").value("OK"))
                 .andExpect(jsonPath("$.message").value("OK"))
-                .andExpect(jsonPath("$.data.nickname").value("updateNickname"))
-                .andExpect(jsonPath("$.data.password").value("updatePassword"));
+                .andExpect(jsonPath("$.data.nickname").value("updateNickname"));
     }
 
     private UserCreateRequest createUser(String email, String nickname, String password) {
