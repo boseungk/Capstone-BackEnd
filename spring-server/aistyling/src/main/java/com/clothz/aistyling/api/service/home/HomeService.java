@@ -23,7 +23,7 @@ public class HomeService {
 
         List<Home> examples = homeRepository.findAll();
         return examples.stream()
-                .map(HomeResponse::of)
+                .map(HomeResponse::from)
                 .collect(Collectors.toList());
     }
 

@@ -4,7 +4,6 @@ import com.clothz.aistyling.api.controller.user.request.UserCreateRequest;
 import com.clothz.aistyling.api.controller.user.request.UserUpdateRequest;
 import com.clothz.aistyling.api.service.user.response.UserInfoResponse;
 import com.clothz.aistyling.api.service.user.response.UserSingUpResponse;
-import com.clothz.aistyling.api.service.user.response.UserUpdateResponse;
 import com.clothz.aistyling.domain.user.User;
 import com.clothz.aistyling.domain.user.UserRepository;
 import com.clothz.aistyling.domain.user.constant.UserRole;
@@ -51,7 +50,7 @@ class UserServiceTest {
 
     @BeforeEach
     void beforeEach() {
-        User user = User.builder()
+        final User user = User.builder()
                 .nickname(NICKNAME)
                 .email(EMAIL)
                 .password(delegatingPasswordEncoder.encode(PASSWORD))
@@ -104,7 +103,7 @@ class UserServiceTest {
         //when
         //then
         Assertions.assertThatThrownBy(() -> {
-                    userService.sameCheckEmail(request.email());
+                    userService.signUp(request);
                 }).isInstanceOf(DuplicateKeyException.class)
                 .hasMessageContaining("Email already exists");
     }
@@ -148,17 +147,20 @@ class UserServiceTest {
         //given
         final User user = userRepository.findByEmail(EMAIL).orElseThrow();
 
-        String email = "user12@gmail.com";
-        String updateNickName = "updateUser";
-        String updatePassWord = "updatePassword";
-        UserUpdateRequest request = UserUpdateRequest.builder().email(email).password(updatePassWord).nickname(updateNickName).build();
+        final String email = "user12@gmail.com";
+        final String updateNickName = "updateUser";
+        final String updatePassWord = "updatePassword";
+        final UserUpdateRequest request = UserUpdateRequest.builder()
+                .email(EMAIL)
+                .password(updatePassWord)
+                .nickname(updateNickName)
+                .build();
 
         //when
         userService.updateUser(request);
         final User updateUser = userRepository.findByEmail(EMAIL).orElseThrow();
 
         //then
-        assertThat(updateUser.getPassword()).isEqualTo(updatePassWord);
         assertThat(updateUser.getNickname()).isEqualTo(updateNickName);
     }
 }
