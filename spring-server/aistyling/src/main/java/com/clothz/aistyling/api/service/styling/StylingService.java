@@ -22,7 +22,7 @@ public class StylingService {
 
         List<Styling> examples = stylingRepository.findAll();
         return examples.stream()
-                .map(StylingExampleResponse::of)
+                .map(StylingExampleResponse::from)
                 .collect(Collectors.toList());
     }
 

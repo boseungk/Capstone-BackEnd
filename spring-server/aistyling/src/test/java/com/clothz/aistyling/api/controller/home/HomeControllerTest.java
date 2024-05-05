@@ -6,7 +6,6 @@ import com.clothz.aistyling.domain.home.Home;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -39,8 +38,8 @@ public class HomeControllerTest {
         //given
         given(homeService.getImageAndSentence()).willReturn(
                 List.of(
-                        HomeResponse.of(new Home("image1", "introduce1")),
-                        HomeResponse.of(new Home("image2", "introduce2"))
+                        HomeResponse.from(new Home("image1", "introduce1")),
+                        HomeResponse.from(new Home("image2", "introduce2"))
                 ));
 
         //when

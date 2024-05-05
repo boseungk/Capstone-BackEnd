@@ -12,7 +12,7 @@ public record UserUpdateResponse(String email, String nickname, String password)
         this.password = password;
     }
 
-    public static UserUpdateResponse of(User user){
+    public static UserUpdateResponse from(User user){
         return UserUpdateResponse.builder()
                 .email(user.getEmail())
                 .nickname(user.getNickname())
