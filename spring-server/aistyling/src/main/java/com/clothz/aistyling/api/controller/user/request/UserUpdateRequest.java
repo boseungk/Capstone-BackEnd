@@ -7,9 +7,6 @@ import lombok.Builder;
 
 public record UserUpdateRequest(
         @NotEmpty
-        @Pattern(regexp = "^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$", message = "이메일 형식으로 작성해주세요")
-        String email,
-        @NotEmpty
         @Size(min = 3, max = 20, message = "3에서 20자 이내여야 합니다.")
         String nickname,
         @NotEmpty
@@ -19,8 +16,7 @@ public record UserUpdateRequest(
 ) {
 
     @Builder
-    public UserUpdateRequest(String email, String nickname, String password) {
-        this.email = email;
+    public UserUpdateRequest(final String nickname, final String password) {
         this.nickname = nickname;
         this.password = password;
     }
