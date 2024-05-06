@@ -53,6 +53,16 @@ clean {
 	delete file('src/main/generated')
 }
 
+bootJar{
+	archivesBaseName = 'aistyling'
+	archiveFileName = 'aistyling.jar'
+	archiveVersion = "0.0.1"
+}
+
+jar {
+	enabled = false
+}
+
 /**
  * QueryDSL Build Options
  */
