@@ -19,6 +19,7 @@ public class ApiResponse<T> {
 
     public static <T> ApiResponse<T> of(final HttpStatus httpStatus, final String message, final T data) {
         return new ApiResponse<>(httpStatus, message, data);
+
     }
 
     public static <T> ApiResponse<T> ok(final T data) {

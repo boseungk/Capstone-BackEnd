@@ -1,6 +1,7 @@
 package com.clothz.aistyling.api.controller.user;
 
 import com.clothz.aistyling.api.controller.user.request.UserCreateRequest;
+import com.clothz.aistyling.api.controller.user.request.UserUpdateRequest;
 import com.clothz.aistyling.api.service.user.UserService;
 import com.clothz.aistyling.domain.user.User;
 import com.clothz.aistyling.domain.user.UserRepository;
@@ -20,6 +21,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
