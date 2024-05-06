@@ -84,13 +84,13 @@ public class UserService {
         return objectMapper.readValue(imgUrls, new TypeReference<List<String>>() {});
     }
 
-    public UserUpdateResponse updateUser(UserUpdateRequest request) throws NoSuchElementException {
-        User user = userRepository.findByEmail(request.email()).orElseThrow(() -> {
+    public UserUpdateResponse updateUser(final UserUpdateRequest request, final Long id) throws NoSuchElementException {
+        final User user = userRepository.findById(id).orElseThrow(() -> {
             throw new NoSuchElementException("Email does not exists");
         });
         user.updateNickname(request.nickname());
         user.updatePassword(passwordEncoder.encode(request.password()));
-        User updateUser = userRepository.save(user);
+        final User updateUser = userRepository.save(user);
         return UserUpdateResponse.from(user);
     }
 

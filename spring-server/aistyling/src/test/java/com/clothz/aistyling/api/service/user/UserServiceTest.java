@@ -147,17 +147,15 @@ class UserServiceTest {
         //given
         final User user = userRepository.findByEmail(EMAIL).orElseThrow();
 
-        final String email = "user12@gmail.com";
         final String updateNickName = "updateUser";
         final String updatePassWord = "updatePassword";
         final UserUpdateRequest request = UserUpdateRequest.builder()
-                .email(EMAIL)
                 .password(updatePassWord)
                 .nickname(updateNickName)
                 .build();
 
         //when
-        userService.updateUser(request);
+        userService.updateUser(request, user.getId());
         final User updateUser = userRepository.findByEmail(EMAIL).orElseThrow();
 
         //then
