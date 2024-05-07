@@ -31,6 +31,3 @@ spring:
       encoding: utf-8
 logging.level:
   org.hibernate.SQL: debug
-springdoc:
-  use-fqn: true
-  # org.hibernate.type: trace
