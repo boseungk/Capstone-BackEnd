@@ -96,4 +96,4 @@ jobs:
             sudo docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.PROJECT_NAME }}
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.PROJECT_NAME }}
             
-            sudo docker run -d -p ${{ secrets.PORT }}:${{ secrets.PORT }} -e ${{ secrets.DB_URL }} -e ${{ secrets.DB_USERNAME }} -e ${{ secrets.DB_PASSWORD }} --name ${{ secrets.PROJECT_NAME }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.PROJECT_NAME }}
+            sudo docker run -p ${{ secrets.PORT }}:${{ secrets.PORT }} -e ${{ secrets.DB_URL }} -e ${{ secrets.DB_USERNAME }} -e ${{ secrets.DB_PASSWORD }} --name ${{ secrets.PROJECT_NAME }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.PROJECT_NAME }}
