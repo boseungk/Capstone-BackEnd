@@ -2,4 +2,4 @@ spring:
   profiles:
     include: cloud
     active:
-      - local
+      - prod
