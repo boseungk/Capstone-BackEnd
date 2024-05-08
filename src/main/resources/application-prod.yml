@@ -6,10 +6,10 @@ server:
   port: 8080
 spring:
   datasource:
-    url: jdbc:mysql://aistyling.cloc8ek6u83h.ap-northeast-2.rds.amazonaws.com:3306/aistyling
+    url: ${DB_URL}
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: admin
-    password: aipassword
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
