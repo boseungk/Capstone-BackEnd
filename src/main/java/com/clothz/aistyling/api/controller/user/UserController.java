@@ -1,6 +1,6 @@
 package com.clothz.aistyling.api.controller.user;
 
-import com.clothz.aistyling.api.ApiResponse;
+import com.clothz.aistyling.global.api.ApiResponse;
 import com.clothz.aistyling.api.controller.user.request.UserCreateRequest;
 import com.clothz.aistyling.api.controller.user.request.UserUpdateRequest;
 import com.clothz.aistyling.api.service.user.UserService;

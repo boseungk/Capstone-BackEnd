@@ -1,4 +1,4 @@
-package com.clothz.aistyling.api;
+package com.clothz.aistyling.global.api;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
