@@ -20,7 +20,7 @@ public class HomeService {
     public List<HomeResponse> getImageAndSentence() {
         final List<Home> mockExamples = createMockExample();
         homeRepository.saveAll(mockExamples);
-
+        
         List<Home> examples = homeRepository.findAll();
         return examples.stream()
                 .map(HomeResponse::from)
