@@ -1,11 +1,15 @@
 package com.clothz.aistyling.api.service.user.response;
 
 import com.clothz.aistyling.domain.user.User;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.util.List;
 
-public record UserInfoResponse(String email, String nickname, List<String> images) {
+@Schema(description = "유저 정보 response")
+public record UserInfoResponse(@Schema(description = "유저 이메일") String email,
+                               @Schema(description = "유저 닉네임") String nickname,
+                               @Schema(description = "유저 이미지들") List<String> images) {
     @Builder
     public UserInfoResponse(String email, String nickname, List<String> images) {
         this.email = email;
