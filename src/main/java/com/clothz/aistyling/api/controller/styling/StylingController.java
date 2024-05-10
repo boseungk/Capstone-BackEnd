@@ -1,6 +1,6 @@
 package com.clothz.aistyling.api.controller.styling;
 
-import com.clothz.aistyling.api.ApiResponse;
+import com.clothz.aistyling.global.api.ApiResponse;
 import com.clothz.aistyling.api.controller.styling.request.StylingWordsRequest;
 import com.clothz.aistyling.api.service.styling.StylingService;
 import com.clothz.aistyling.api.service.styling.response.StylingExampleResponse;

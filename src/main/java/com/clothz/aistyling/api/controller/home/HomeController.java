@@ -1,6 +1,6 @@
 package com.clothz.aistyling.api.controller.home;
 
-import com.clothz.aistyling.api.ApiResponse;
+import com.clothz.aistyling.global.api.ApiResponse;
 import com.clothz.aistyling.api.service.home.HomeService;
 import com.clothz.aistyling.api.service.home.response.HomeResponse;
 import io.swagger.v3.oas.annotations.Operation;

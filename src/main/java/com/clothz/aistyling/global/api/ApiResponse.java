@@ -1,4 +1,4 @@
-package com.clothz.aistyling.api;
+package com.clothz.aistyling.global.api;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -30,5 +30,8 @@ public class ApiResponse<T> {
 
     public static <T> ApiResponse<T> ok(final T data) {
         return of(HttpStatus.OK, HttpStatus.OK.name(), data);
+    }
+    public static <T> ApiResponse<T> error(final HttpStatus httpStatus, final String message) {
+        return of(httpStatus, message, null);
     }
 }

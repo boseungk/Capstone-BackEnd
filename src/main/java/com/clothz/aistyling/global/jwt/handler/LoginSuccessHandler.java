@@ -1,7 +1,7 @@
 package com.clothz.aistyling.global.jwt.handler;
 
 
-import com.clothz.aistyling.api.ApiResponse;
+import com.clothz.aistyling.global.api.ApiResponse;
 import com.clothz.aistyling.domain.user.User;
 import com.clothz.aistyling.domain.user.UserRepository;
 import com.clothz.aistyling.global.jwt.JwtProvider;
