@@ -3,7 +3,7 @@ package com.clothz.aistyling.api.service.user;
 import com.clothz.aistyling.api.controller.user.request.UserCreateRequest;
 import com.clothz.aistyling.api.controller.user.request.UserUpdateRequest;
 import com.clothz.aistyling.api.service.user.response.UserInfoResponse;
-import com.clothz.aistyling.api.service.user.response.UserSingUpResponse;
+import com.clothz.aistyling.api.service.user.response.UserSignUpResponse;
 import com.clothz.aistyling.domain.user.User;
 import com.clothz.aistyling.domain.user.UserRepository;
 import com.clothz.aistyling.domain.user.constant.UserRole;
@@ -83,7 +83,7 @@ class UserServiceTest {
         final var images = List.of("image1.png", "images2.png");
 
         //when
-        final UserSingUpResponse userSingUpResponse = userService.signUp(request);
+        final UserSignUpResponse userSingUpResponse = userService.signUp(request);
 
         //then
         assertThat(userSingUpResponse.email()).isEqualTo(ANOTHER_EMAIL);

@@ -4,7 +4,7 @@ import com.clothz.aistyling.api.controller.user.request.UserCreateRequest;
 import com.clothz.aistyling.api.controller.user.request.UserUpdateRequest;
 import com.clothz.aistyling.api.service.user.response.UserImagesResponse;
 import com.clothz.aistyling.api.service.user.response.UserInfoResponse;
-import com.clothz.aistyling.api.service.user.response.UserSingUpResponse;
+import com.clothz.aistyling.api.service.user.response.UserSignUpResponse;
 import com.clothz.aistyling.api.service.user.response.UserUpdateResponse;
 import com.clothz.aistyling.domain.user.User;
 import com.clothz.aistyling.domain.user.UserRepository;
@@ -31,11 +31,11 @@ public class UserService {
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
 
-    public UserSingUpResponse signUp(final UserCreateRequest request) {
+    public UserSignUpResponse signUp(final UserCreateRequest request) {
         checkSameEmail(request.email());
         final String encodePassword = passwordEncoder.encode(request.password());
         final User user = userRepository.save(createUserEntity(request, encodePassword));
-        return UserSingUpResponse.from(user);
+        return UserSignUpResponse.from(user);
     }
 
     private void checkSameEmail(final String email) {
