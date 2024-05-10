@@ -1,9 +1,12 @@
 package com.clothz.aistyling.api.service.styling.response;
 
 import com.clothz.aistyling.domain.styling.Styling;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
-public record StylingExampleResponse(String image, String prompt) {
+@Schema(description = "스타일 예시")
+public record StylingExampleResponse(@Schema(description = "좋은 생성형 이미지 예시") String image,
+                                     @Schema(description = "좋은 프롬프트 예시") String prompt) {
     @Builder
     public StylingExampleResponse(String image, String prompt) {
         this.image = image;

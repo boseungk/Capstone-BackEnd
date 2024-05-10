@@ -1,10 +1,13 @@
 package com.clothz.aistyling.api.controller.styling.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.util.List;
 
-public record PromptWithWordsRequest(String inputs, List<String> inputIdImages) {
+@Schema(description = "프롬프트와 이미지들 request")
+public record PromptWithWordsRequest(@Schema(description = "프롬프트") String inputs,
+                                     @Schema(description = "이미지들") List<String> inputIdImages) {
 
     @Builder
     public PromptWithWordsRequest(final String inputs, final List<String> inputIdImages){
