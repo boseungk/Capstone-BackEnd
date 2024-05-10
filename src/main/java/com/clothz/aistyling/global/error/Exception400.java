@@ -6,8 +6,8 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public class Exception400 extends RuntimeException {
-    public Exception400(final String message) {
-        super(message);
+    public Exception400(final ErrorCode code) {
+        super(code.getMessage());
     }
     public ApiResponse<Exception400> body() {
         return ApiResponse.error(HttpStatus.BAD_REQUEST, getMessage());
