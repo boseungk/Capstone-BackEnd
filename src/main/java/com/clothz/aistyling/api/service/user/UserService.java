@@ -9,6 +9,8 @@ import com.clothz.aistyling.api.service.user.response.UserUpdateResponse;
 import com.clothz.aistyling.domain.user.User;
 import com.clothz.aistyling.domain.user.UserRepository;
 import com.clothz.aistyling.domain.user.constant.UserRole;
+import com.clothz.aistyling.global.error.ErrorCode;
+import com.clothz.aistyling.global.error.Exception409;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,7 +42,7 @@ public class UserService {
 
     private void checkSameEmail(final String email) {
         userRepository.findByEmail(email).ifPresent(n -> {
-            throw new DuplicateKeyException("Email already exists");
+            throw new Exception409(ErrorCode.DUPLICATED_USER);
         });
     }
 
