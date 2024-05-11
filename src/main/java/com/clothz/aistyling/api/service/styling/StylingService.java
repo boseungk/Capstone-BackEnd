@@ -8,6 +8,8 @@ import com.clothz.aistyling.domain.styling.Styling;
 import com.clothz.aistyling.domain.styling.StylingRepository;
 import com.clothz.aistyling.domain.user.User;
 import com.clothz.aistyling.domain.user.UserRepository;
+import com.clothz.aistyling.global.error.ErrorCode;
+import com.clothz.aistyling.global.error.Exception400;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -55,7 +57,7 @@ public class StylingService {
 
     public StylingImageResponse getImageWithWords(final String requestUrl, final StylingWordsRequest request, final Long id) throws JsonProcessingException {
         final User user = userRepository.findById(id).orElseThrow(
-                () -> new UsernameNotFoundException("User not found")
+                () -> new Exception400(ErrorCode.USER_NOT_FOUND)
         );
         final List<String> imageUrls = deserializeImageUrls(user.getUserImages());
         final var jsonResponse = post(requestUrl, PromptWithWordsRequest.of(request.words(), imageUrls), StylingImageResponse.class);
