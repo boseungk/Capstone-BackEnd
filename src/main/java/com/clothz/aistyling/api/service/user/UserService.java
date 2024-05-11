@@ -90,7 +90,7 @@ public class UserService {
 
     public UserUpdateResponse updateUser(final UserUpdateRequest request, final Long id) throws NoSuchElementException {
         final User user = userRepository.findById(id).orElseThrow(() -> {
-            throw new NoSuchElementException("Email does not exists");
+            throw new Exception400(ErrorCode.USER_NOT_FOUND);
         });
         user.updateNickname(request.nickname());
         user.updatePassword(passwordEncoder.encode(request.password()));
