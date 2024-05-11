@@ -21,6 +21,7 @@ public enum ErrorCode {
 
     //404에러
     NOT_FOUND("해당 리소스를 찾을 수 없습니다"),
+    IMAGE_NOT_FOUND("해당 이미지를 찾을 수 없습니다"),
 
     //409에러
     DUPLICATED_USER("이미 존재하는 유저입니다"),

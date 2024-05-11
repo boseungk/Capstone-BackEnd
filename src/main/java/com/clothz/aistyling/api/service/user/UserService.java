@@ -10,6 +10,8 @@ import com.clothz.aistyling.domain.user.User;
 import com.clothz.aistyling.domain.user.UserRepository;
 import com.clothz.aistyling.domain.user.constant.UserRole;
 import com.clothz.aistyling.global.error.ErrorCode;
+import com.clothz.aistyling.global.error.Exception400;
+import com.clothz.aistyling.global.error.Exception404;
 import com.clothz.aistyling.global.error.Exception409;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -57,9 +59,9 @@ public class UserService {
 
     public UserImagesResponse uploadUserImg(final List<String> imgUrls, final Long id) throws IOException {
         if(imgUrls.isEmpty())
-            throw new IllegalArgumentException("Image is empty");
+            throw new Exception404(ErrorCode.IMAGE_NOT_FOUND);
         final User user = userRepository.findById(id).orElseThrow(
-                () -> new UsernameNotFoundException("User not found")
+                () -> new Exception400(ErrorCode.USER_NOT_FOUND)
         );
         final String serializedImages = serializeImages(imgUrls);
         user.saveImages(serializedImages);
