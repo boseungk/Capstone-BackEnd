@@ -76,7 +76,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserInfoResponse getUserInfo(final Long id) throws JsonProcessingException {
         final User user = userRepository.findById(id).orElseThrow(
-                () -> new UsernameNotFoundException("User not found")
+                () -> new Exception404(ErrorCode.USER_NOT_FOUND)
         );
         final var deserializedImages = deserializeImageUrls(user.getUserImages());
         return UserInfoResponse.of(user, deserializedImages);
