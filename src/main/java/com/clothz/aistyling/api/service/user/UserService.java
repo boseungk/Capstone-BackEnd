@@ -9,6 +9,10 @@ import com.clothz.aistyling.api.service.user.response.UserUpdateResponse;
 import com.clothz.aistyling.domain.user.User;
 import com.clothz.aistyling.domain.user.UserRepository;
 import com.clothz.aistyling.domain.user.constant.UserRole;
+import com.clothz.aistyling.global.error.ErrorCode;
+import com.clothz.aistyling.global.error.Exception400;
+import com.clothz.aistyling.global.error.Exception404;
+import com.clothz.aistyling.global.error.Exception409;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,7 +44,7 @@ public class UserService {
 
     private void checkSameEmail(final String email) {
         userRepository.findByEmail(email).ifPresent(n -> {
-            throw new DuplicateKeyException("Email already exists");
+            throw new Exception409(ErrorCode.DUPLICATED_USER);
         });
     }
 
@@ -55,9 +59,9 @@ public class UserService {
 
     public UserImagesResponse uploadUserImg(final List<String> imgUrls, final Long id) throws IOException {
         if(imgUrls.isEmpty())
-            throw new IllegalArgumentException("Image is empty");
+            throw new Exception404(ErrorCode.IMAGE_NOT_FOUND);
         final User user = userRepository.findById(id).orElseThrow(
-                () -> new UsernameNotFoundException("User not found")
+                () -> new Exception400(ErrorCode.USER_NOT_FOUND)
         );
         final String serializedImages = serializeImages(imgUrls);
         user.saveImages(serializedImages);
@@ -72,7 +76,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserInfoResponse getUserInfo(final Long id) throws JsonProcessingException {
         final User user = userRepository.findById(id).orElseThrow(
-                () -> new UsernameNotFoundException("User not found")
+                () -> new Exception404(ErrorCode.USER_NOT_FOUND)
         );
         final var deserializedImages = deserializeImageUrls(user.getUserImages());
         return UserInfoResponse.of(user, deserializedImages);
@@ -86,7 +90,7 @@ public class UserService {
 
     public UserUpdateResponse updateUser(final UserUpdateRequest request, final Long id) throws NoSuchElementException {
         final User user = userRepository.findById(id).orElseThrow(() -> {
-            throw new NoSuchElementException("Email does not exists");
+            throw new Exception400(ErrorCode.USER_NOT_FOUND);
         });
         user.updateNickname(request.nickname());
         user.updatePassword(passwordEncoder.encode(request.password()));
