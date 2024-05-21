@@ -75,7 +75,7 @@ public class UserController {
         return ApiResponse.ok(userImagesResponse);
     }
 
-    @PutMapping("/users")
+    @PostMapping("/users")
     @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "회원정보 수정하기", description = "토큰을 기반으로 사용자의 회원정보를 수정한다")
     @Parameters({

@@ -33,35 +33,18 @@ public class StylingService {
     private final WebClient webClient;
 
     public List<StylingExampleResponse> getImageAndPrompt() {
-        // 임시 Mock Example 객체 저장, 이후 삭제 예정
-        final var mockExamples = createMockExample();
-        stylingRepository.saveAll(mockExamples);
-
         final List<Styling> examples = stylingRepository.findAll();
         return examples.stream()
                 .map(StylingExampleResponse::from)
                 .collect(Collectors.toList());
     }
 
-    private List<Styling> createMockExample() {
-        final Styling example1 = Styling.builder()
-                .image("images1")
-                .prompt("prompt example 1")
-                .build();
-        final Styling example2 = Styling.builder()
-                .image("images2")
-                .prompt("prompt example 2")
-                .build();
-        return List.of(example1, example2);
-    }
-
-    public StylingImageResponse getImageWithWords(final String requestUrl, final StylingWordsRequest request, final Long id) throws JsonProcessingException {
+    public Mono<StylingImageResponse> getImageWithWords(final String requestUrl, final StylingWordsRequest request, final Long id) throws JsonProcessingException {
         final User user = userRepository.findById(id).orElseThrow(
                 () -> new Exception400(ErrorCode.USER_NOT_FOUND)
         );
         final List<String> imageUrls = deserializeImageUrls(user.getUserImages());
-        final var jsonResponse = post(requestUrl, PromptWithWordsRequest.of(request.words(), imageUrls), StylingImageResponse.class);
-        return jsonResponse.block();
+        return post(requestUrl, PromptWithWordsRequest.of(request.words(), imageUrls), StylingImageResponse.class);
     }
 
     private List<String> deserializeImageUrls(final String imgUrls) throws JsonProcessingException {

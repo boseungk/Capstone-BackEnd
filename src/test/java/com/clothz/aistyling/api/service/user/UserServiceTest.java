@@ -7,6 +7,7 @@ import com.clothz.aistyling.api.service.user.response.UserSignUpResponse;
 import com.clothz.aistyling.domain.user.User;
 import com.clothz.aistyling.domain.user.UserRepository;
 import com.clothz.aistyling.domain.user.constant.UserRole;
+import com.clothz.aistyling.global.error.Exception409;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +29,7 @@ import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Profile("test")
 @SpringBootTest
 @Transactional
 class UserServiceTest {
@@ -104,8 +107,8 @@ class UserServiceTest {
         //then
         Assertions.assertThatThrownBy(() -> {
                     userService.signUp(request);
-                }).isInstanceOf(DuplicateKeyException.class)
-                .hasMessageContaining("Email already exists");
+                }).isInstanceOf(Exception409.class)
+                .hasMessageContaining("이미 존재하는 유저입니다");
     }
 
     @DisplayName("사용자의 이미지를 업로드 한다.")
