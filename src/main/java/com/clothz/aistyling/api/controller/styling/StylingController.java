@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class StylingController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "스타일 이미지 선택", description = "사용자가 이미지를 클릭하면 관련 단어를 서버로 전달")
     @Parameter(name = "request.words", description = "이미지 관련 단어들")
-    public ApiResponse<StylingImageResponse> getImageWithWords(
+    public ApiResponse<Mono<StylingImageResponse>> getImageWithWords(
             @RequestBody @Valid final StylingWordsRequest request,
             @AuthenticationPrincipal final CustomUserDetails userDetails) throws JsonProcessingException {
         final var imageWithWords = stylingService.getImageWithWords(AI_URL_WITH_WORDS, request, userDetails.getId());
