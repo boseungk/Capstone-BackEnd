@@ -24,12 +24,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = HomeController.class)
 public class HomeControllerTest {
 
-    @Autowired private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @Autowired private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
-    HomeService homeService;
+    private HomeService homeService;
 
     @WithMockUser
     @DisplayName("소개 이미지와 글을 가져온다")

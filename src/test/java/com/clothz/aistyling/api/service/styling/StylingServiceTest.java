@@ -4,6 +4,7 @@ import com.clothz.aistyling.api.controller.styling.request.StylingWordsRequest;
 import com.clothz.aistyling.api.service.styling.response.StylingExampleResponse;
 import com.clothz.aistyling.api.service.styling.response.StylingImageResponse;
 import com.clothz.aistyling.domain.styling.Styling;
+import com.clothz.aistyling.domain.styling.StylingRepository;
 import com.clothz.aistyling.domain.user.User;
 import com.clothz.aistyling.domain.user.UserRepository;
 import com.clothz.aistyling.domain.user.constant.UserRole;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
@@ -26,6 +28,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Profile("test")
 @SpringBootTest
 @Transactional
 class StylingServiceTest {
@@ -48,6 +51,8 @@ class StylingServiceTest {
 
     private static MockWebServer mockWebServer;
     private static String mockWebServerUrl;
+    @Autowired
+    private StylingRepository stylingRepository;
 
     @BeforeEach
     void setUp() throws IOException {
@@ -59,11 +64,12 @@ class StylingServiceTest {
                 .userImages("[\"image1.png\", \"image2.png\"]")
                 .build();
         userRepository.save(user);
+        stylingRepository.save(new Styling("images1", "prompt example 1"));
+        stylingRepository.save(new Styling("images2", "prompt example 2"));
 
         mockWebServer = new MockWebServer();
         mockWebServer.start();
         mockWebServerUrl = mockWebServer.url(AI_URL_WITH_WORDS).toString();
-
     }
     private void clear() {
         em.flush();
@@ -112,7 +118,7 @@ class StylingServiceTest {
         final var imageWithWords = stylingService.getImageWithWords(mockWebServerUrl, wordsRequest, user.getId());
 
         //then
-        assertThat(imageWithWords.images())
+        assertThat(imageWithWords.block().images())
                 .hasSize(1)
                 .containsExactlyInAnyOrder("generatedImage1.png");
     }
