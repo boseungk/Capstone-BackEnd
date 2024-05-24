@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Transactional
 @MockBean(JpaMetamodelMappingContext.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@SpringBootTest
 class UserControllerTest {
     private static final String KEY_EMAIL = "email";
     private static final String KEY_PASSWORD = "password";
