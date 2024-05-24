@@ -1,4 +1,7 @@
 spring:
+  mvc:
+    async:
+      request-timeout: 60000
   servlet:
     multipart:
       max-file-size: 20MB # 최대 파일 사이즈
@@ -6,11 +9,16 @@ spring:
   cloud:
     aws:
       credentials:
-        access-key: {AWS_ACCESS_KEY_ID} # IAM에서 생성한 access-key
-        secret-key: {AWS_SECRET_ACCESS_KEY} # IAM에서 생성한 secret-key
+        access-key: ${AWS_ACCESS_KEY_ID} # IAM에서 생성한 access-key
+        secret-key: ${AWS_SECRET_ACCESS_KEY} # IAM에서 생성한 secret-key
       region:
         static: ap-northeast-2 # 버킷 region
       s3:
         bucket: ai-styling-s3 # 버킷 이름
+      sqs:
+        queue:
+          name: responseQueue # SQS 이름
+          url1: ${AWS_SQS_URL_WORDS} # SQS URL
+          url2: ${AWS_SQS_URL_SENTENCES} # SQS URL
       stack:
         auto: false
