@@ -24,7 +24,7 @@ public class RecommendService {
     private static final String KR = "kr";
     private static final String API_KEY = "api_key";
     
-    @Value("${google.search.serp.api.key}")
+    @Value("${spring.cloud.google.search.serp.api.key}")
     private String googleSearchSerpApiKey;
     private final WebClient webClient;
 
