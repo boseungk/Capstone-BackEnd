@@ -16,6 +16,7 @@ import java.time.Duration;
 @Configuration
 public class WebClientConfig {
     private static final int TIMEOUT_MS = 60000;
+    private String serpUrl = "https://serpapi.com/search.json";
 
     HttpClient httpClient = HttpClient.create()
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, TIMEOUT_MS)
@@ -28,10 +29,12 @@ public class WebClientConfig {
     @Bean
     public WebClient webClient() {
         return WebClient.builder()
-                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(2 * 1024 * 1024))
+                .baseUrl(serpUrl)
+                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(4 * 1024 * 1024))
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .defaultHeaders(httpHeaders -> {
                     httpHeaders.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+                    httpHeaders.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
                 })
                 .build();
     }

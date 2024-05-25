@@ -1,4 +1,4 @@
-package com.clothz.aistyling.global.s3;
+package com.clothz.aistyling.global.aws;
 
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 

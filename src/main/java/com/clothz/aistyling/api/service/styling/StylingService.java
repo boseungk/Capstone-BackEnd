@@ -3,7 +3,6 @@ package com.clothz.aistyling.api.service.styling;
 import com.clothz.aistyling.api.controller.styling.request.PromptWithWordsRequest;
 import com.clothz.aistyling.api.controller.styling.request.StylingWordsRequest;
 import com.clothz.aistyling.api.service.styling.response.StylingExampleResponse;
-import com.clothz.aistyling.api.service.styling.response.StylingImageResponse;
 import com.clothz.aistyling.domain.styling.Styling;
 import com.clothz.aistyling.domain.styling.StylingRepository;
 import com.clothz.aistyling.domain.user.User;
@@ -13,24 +12,33 @@ import com.clothz.aistyling.global.error.Exception400;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.awspring.cloud.sqs.annotation.SqsListener;
+import io.awspring.cloud.sqs.operations.SqsTemplate;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional
 @Service
 public class StylingService {
+    @Value("${spring.cloud.aws.sqs.queue.url1}")
+    private String requestWordsQueueUrl;
+    @Value("${spring.cloud.aws.sqs.queue.url2}")
+    private String requestSentencesQueueUrl;
+    private final ObjectMapper objectMapper;
+    private final SqsTemplate sqsTemplate;
     private final UserRepository userRepository;
     private final StylingRepository stylingRepository;
-    private final ObjectMapper objectMapper;
-    private final WebClient webClient;
+    private static final ConcurrentLinkedQueue<CompletableFuture<String>> queue = new ConcurrentLinkedQueue<>();
 
     public List<StylingExampleResponse> getImageAndPrompt() {
         final List<Styling> examples = stylingRepository.findAll();
@@ -39,27 +47,42 @@ public class StylingService {
                 .collect(Collectors.toList());
     }
 
-    public Mono<StylingImageResponse> getImageWithWords(final String requestUrl, final StylingWordsRequest request, final Long id) throws JsonProcessingException {
+    public CompletableFuture<String> getImageWithWords(final StylingWordsRequest request, final Long id) throws JsonProcessingException {
         final User user = userRepository.findById(id).orElseThrow(
                 () -> new Exception400(ErrorCode.USER_NOT_FOUND)
         );
         final List<String> imageUrls = deserializeImageUrls(user.getUserImages());
-        return post(requestUrl, PromptWithWordsRequest.of(request.words(), imageUrls), StylingImageResponse.class);
+        sqsTemplate.send(requestWordsQueueUrl, PromptWithWordsRequest.of(request.words(), imageUrls));
+        return imageResponseFuture();
     }
 
     private List<String> deserializeImageUrls(final String imgUrls) throws JsonProcessingException {
-        if (null == imgUrls)
-            return List.of();
+        if (null == imgUrls) return List.of();
         return objectMapper.readValue(imgUrls, new TypeReference<List<String>>() {
         });
     }
 
-    private <T> Mono<T> post(final String url, final Object request, final Class<T> responseType) {
-        return webClient.post()
-                .uri(url)
-                .bodyValue(request)
-                .retrieve()
-                .bodyToMono(responseType);
+    private CompletableFuture<String> imageResponseFuture() {
+        final CompletableFuture<String> future = new CompletableFuture<>();
+        queue.add(future);
+        return Objects.requireNonNull(queue.peek())
+                .thenCompose(s -> queue.poll());
     }
 
+    @SqsListener("responseQueue")
+    private void receiveMessage(final String message){
+        final CompletableFuture<String> future = queue.peek();
+        if (null != future) {
+            future.complete(message);
+        }
+    }
+
+    public CompletableFuture<String> getImageWithSentences(final StylingWordsRequest request, final Long id) throws JsonProcessingException {
+        final User user = userRepository.findById(id).orElseThrow(
+                () -> new Exception400(ErrorCode.USER_NOT_FOUND)
+        );
+        final List<String> imageUrls = deserializeImageUrls(user.getUserImages());
+        sqsTemplate.send(requestSentencesQueueUrl, PromptWithWordsRequest.of(request.words(), imageUrls));
+        return imageResponseFuture();
+    }
 }

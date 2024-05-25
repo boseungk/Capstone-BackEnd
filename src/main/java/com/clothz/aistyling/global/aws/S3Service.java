@@ -1,4 +1,4 @@
-package com.clothz.aistyling.global.s3;
+package com.clothz.aistyling.global.aws;
 
 import io.awspring.cloud.s3.ObjectMetadata;
 import io.awspring.cloud.s3.S3Operations;

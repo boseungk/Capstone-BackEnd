@@ -9,12 +9,11 @@ import com.clothz.aistyling.api.service.user.response.UserInfoResponse;
 import com.clothz.aistyling.api.service.user.response.UserSignUpResponse;
 import com.clothz.aistyling.api.service.user.response.UserUpdateResponse;
 import com.clothz.aistyling.global.jwt.userInfo.CustomUserDetails;
-import com.clothz.aistyling.global.s3.S3Service;
+import com.clothz.aistyling.global.aws.S3Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -67,7 +66,7 @@ public class UserController {
     @Operation(summary = "회원정보 사진 변경", description = "토큰을 기반으로 사용자의 이미지를 변경한다")
     @Parameter(name = "images", description = "이미지들을 업로드 합니다")
     public ApiResponse<UserImagesResponse> uploadUserImg(
-            @RequestPart("multipartFile") final List<MultipartFile> images,
+            @RequestPart("images") final List<MultipartFile> images,
             @AuthenticationPrincipal final CustomUserDetails userDetails
     ) throws IOException {
         final var imgUrls = s3Service.upload(images);

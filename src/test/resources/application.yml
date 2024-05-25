@@ -1,4 +1,31 @@
+server:
+  servlet:
+    encoding:
+      charset: utf-8
+      force: true
+  port: 8080
 spring:
+  datasource:
+    url: jdbc:h2:mem:test;MODE=MySQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect=org:
+          hibernate:
+            dialect:
+              MariaDBDialect:
+        highlight_sql: true
+        format_sql: true
+      default_batch_fetch_size: 100
+    open-in-view: false
+  sql:
+    init:
+      encoding: utf-8
   mvc:
     async:
       request-timeout: 60000
@@ -22,6 +49,8 @@ spring:
           url2: ${AWS_SQS_URL_SENTENCES} # SQS URL
       stack:
         auto: false
+logging.level:
+  org.hibernate.SQL: debug
 google:
   search:
     serp:

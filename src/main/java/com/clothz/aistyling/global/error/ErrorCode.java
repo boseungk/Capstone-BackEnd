@@ -27,7 +27,8 @@ public enum ErrorCode {
     DUPLICATED_USER("이미 존재하는 유저입니다"),
 
     //500에러
-    INTERNAL_SERVER_ERROR("서버 내부 오류입니다");
+    INTERNAL_SERVER_ERROR("서버 내부 오류입니다"),
+    GOOGLE_SEARCH_SERP_API_ERROR("구글 검색 API 오류입니다");
 
     private final String message;
 
