@@ -49,10 +49,11 @@ spring:
           url2: ${AWS_SQS_URL_SENTENCES} # SQS URL
       stack:
         auto: false
+    google:
+      search:
+        serp:
+          api:
+            key: ${GOOGLE_API_KEY} # 구글 API 키
 logging.level:
   org.hibernate.SQL: debug
-google:
-  search:
-    serp:
-      api:
-        key: ${GOOGLE_API_KEY} # 구글 API 키
+

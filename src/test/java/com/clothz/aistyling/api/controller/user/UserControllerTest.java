@@ -15,16 +15,20 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -64,7 +68,7 @@ class UserControllerTest {
 
     @BeforeEach
     void beforeEach() {
-            User user = User.builder()
+            final User user = User.builder()
                     .nickname(NICKNAME)
                     .email(EMAIL)
                     .password(delegatingPasswordEncoder.encode(PASSWORD))
@@ -84,14 +88,16 @@ class UserControllerTest {
     @Test
     void signUp() throws Exception {
         //given
-        UserCreateRequest request = createUser(ANOTHER_EMAIL, NICKNAME, PASSWORD);
+        final UserCreateRequest userRequest = createUser(ANOTHER_EMAIL, NICKNAME, PASSWORD);
+        final MockMultipartFile request = new MockMultipartFile("request", null, "application/json", objectMapper.writeValueAsString(userRequest).getBytes(StandardCharsets.UTF_8));
 
         //when
         //then
         mockMvc.perform(
-                        post("/api/signup")
-                                .content(objectMapper.writeValueAsString(request))
-                                .contentType(MediaType.APPLICATION_JSON)
+                        multipart(HttpMethod.POST, "/api/signup")
+                                .file(request)
+                                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                                .accept(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -104,14 +110,16 @@ class UserControllerTest {
     @Test
     void signUpWithEmailFormat() throws Exception{
         //given
-        UserCreateRequest request = createUser("user12@gmail", NICKNAME, PASSWORD);
+        final UserCreateRequest userRequest = createUser("user12@gmail", NICKNAME, PASSWORD);
+        final MockMultipartFile request = new MockMultipartFile("request", null, "application/json", objectMapper.writeValueAsString(userRequest).getBytes(StandardCharsets.UTF_8));
 
         //when
         //then
         mockMvc.perform(
-                        post("/api/signup")
-                                .content(objectMapper.writeValueAsString(request))
-                                .contentType(MediaType.APPLICATION_JSON)
+                        multipart(HttpMethod.POST, "/api/signup")
+                                .file(request)
+                                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                                .accept(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -125,16 +133,18 @@ class UserControllerTest {
     @Test
     void signUpWithNickname3To20Characters() throws Exception{
         //given
-        UserCreateRequest request1 = createUser(EMAIL, "1", PASSWORD);
-        UserCreateRequest request2 = createUser(EMAIL, "123456789012345678901", PASSWORD);
+        final UserCreateRequest userRequest1 = createUser(EMAIL, "1", PASSWORD);
+        final UserCreateRequest userRequest2 = createUser(EMAIL, "123456789012345678901", PASSWORD);
+        final MockMultipartFile request1 = new MockMultipartFile("request", null, "application/json", objectMapper.writeValueAsString(userRequest1).getBytes(StandardCharsets.UTF_8));
+        final MockMultipartFile request2 = new MockMultipartFile("request", null, "application/json", objectMapper.writeValueAsString(userRequest2).getBytes(StandardCharsets.UTF_8));
 
         //when
         //then
-        // 3글자 이하의 경우
         mockMvc.perform(
-                        post("/api/signup")
-                                .content(objectMapper.writeValueAsString(request1))
-                                .contentType(MediaType.APPLICATION_JSON)
+                        multipart(HttpMethod.POST, "/api/signup")
+                                .file(request1)
+                                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                                .accept(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -144,9 +154,10 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.data").isEmpty());
         // 20글자 이상의 경우
         mockMvc.perform(
-                        post("/api/signup")
-                                .content(objectMapper.writeValueAsString(request1))
-                                .contentType(MediaType.APPLICATION_JSON)
+                        multipart(HttpMethod.POST, "/api/signup")
+                                .file(request2)
+                                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                                .accept(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -160,14 +171,16 @@ class UserControllerTest {
     @Test
     void signUpWithSecurePassword() throws Exception{
         //given
-        UserCreateRequest request = createUser(EMAIL, NICKNAME, "password");
+        final UserCreateRequest userRequest = createUser(EMAIL, NICKNAME, "password");
+        final MockMultipartFile request = new MockMultipartFile("request", null, "application/json", objectMapper.writeValueAsString(userRequest).getBytes(StandardCharsets.UTF_8));
 
         //when
         //then
         mockMvc.perform(
-                        post("/api/signup")
-                                .content(objectMapper.writeValueAsString(request))
-                                .contentType(MediaType.APPLICATION_JSON)
+                        multipart(HttpMethod.POST, "/api/signup")
+                                .file(request)
+                                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                                .accept(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -219,7 +232,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 
-    private UserCreateRequest createUser(String email, String nickname, String password) {
+    private UserCreateRequest createUser(final String email, final String nickname, final String password) {
         return UserCreateRequest.builder()
                 .email(email)
                 .nickname(nickname)
