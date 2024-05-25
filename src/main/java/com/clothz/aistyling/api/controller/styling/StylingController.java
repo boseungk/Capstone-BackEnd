@@ -48,7 +48,7 @@ public class StylingController {
     @PostMapping("/styling/sentences")
     @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "스타일 이미지 선택", description = "사용자가 이미지를 클릭하면 관련 문장을 서버로 전달")
-    @Parameter(name = "request.sentences", description = "이미지 관련 단어들")
+    @Parameter(name = "request.words", description = "이미지 관련 단어들")
     public CompletableFuture<ApiResponse<String>> getImageWithSentences(
             @RequestBody @Valid final StylingWordsRequest request,
             @AuthenticationPrincipal final CustomUserDetails userDetails) throws JsonProcessingException {
