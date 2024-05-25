@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -36,7 +37,7 @@ public class UserController {
     private final UserService userService;
     private final S3Service s3Service;
 
-    @PostMapping("/signup")
+    @PostMapping(value="/signup", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "회원가입", description = "사용자 이메일, 닉네임, 비밀번호를 입력받아 회원가입한다")
     @Parameters({
             @Parameter(name = "request.email", description = "이메일 형식으로 작성해주세요"),
@@ -45,9 +46,15 @@ public class UserController {
                     "영문, 숫자, 특수문자가 포함되어야하고 공백이 포함될 수 없습니다.")
     })
     public ApiResponse<UserSignUpResponse> signUp(
-            @RequestBody @Valid
-            final UserCreateRequest request){
-        final var userSingUpResponse = userService.signUp(request);
+            @RequestPart("request") @Valid
+            final UserCreateRequest request,
+            @RequestPart(value="images", required = false)
+            final List<MultipartFile> images
+    ) throws IOException {
+        final List<String> imgUrls = new ArrayList<>();
+        if(null != images)
+            imgUrls.addAll(s3Service.upload(images));
+        final var userSingUpResponse = userService.signUp(request, imgUrls);
         return ApiResponse.ok(userSingUpResponse);
     }
 
