@@ -17,8 +17,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,10 +33,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
 
-    public UserSignUpResponse signUp(final UserCreateRequest request) {
+    public UserSignUpResponse signUp(final UserCreateRequest request, final List<String> imgUrls) throws IOException {
         checkSameEmail(request.email());
         final String encodePassword = passwordEncoder.encode(request.password());
         final User user = userRepository.save(createUserEntity(request, encodePassword));
+        if(!imgUrls.isEmpty()){
+            uploadUserImg(imgUrls, user.getId());
+        }
         return UserSignUpResponse.from(user);
     }
 

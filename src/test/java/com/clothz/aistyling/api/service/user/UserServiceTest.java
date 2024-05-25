@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Profile;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -76,7 +75,7 @@ class UserServiceTest {
 
     @DisplayName("회원 가입을 한다.")
     @Test
-    void signUp() throws JsonProcessingException {
+    void signUp() throws IOException {
         //given
         final UserCreateRequest request = UserCreateRequest.builder()
                 .nickname(NICKNAME)
@@ -86,7 +85,7 @@ class UserServiceTest {
         final var images = List.of("image1.png", "images2.png");
 
         //when
-        final UserSignUpResponse userSingUpResponse = userService.signUp(request);
+        final UserSignUpResponse userSingUpResponse = userService.signUp(request, images);
 
         //then
         assertThat(userSingUpResponse.email()).isEqualTo(ANOTHER_EMAIL);
@@ -102,11 +101,12 @@ class UserServiceTest {
                 .email(SAME_EMAIL)
                 .password(PASSWORD)
                 .build();
+        final var images = List.of("image1.png", "images2.png");
 
         //when
         //then
         Assertions.assertThatThrownBy(() -> {
-                    userService.signUp(request);
+                    userService.signUp(request, images);
                 }).isInstanceOf(Exception409.class)
                 .hasMessageContaining("이미 존재하는 유저입니다");
     }
