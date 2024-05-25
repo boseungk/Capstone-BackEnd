@@ -51,4 +51,8 @@ spring:
         auto: false
 logging.level:
   org.hibernate.SQL: debug
-
+google:
+  search:
+    serp:
+      api:
+        key: ${GOOGLE_API_KEY} # 구글 API 키
