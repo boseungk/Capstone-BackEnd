@@ -16,7 +16,7 @@ public class JwtProvider {
     private static final String ACCESS_HEADER = "Authorization";
 
     private static final String ACCESS_TOKEN = "AccessToken";
-    private static final Long ACCESS_EXP = 1000L * 60 * 60; // 1시간
+    private static final Long ACCESS_EXP = 1000L * 60 * 60 * 24 * 7;
     private static final String EMAIL_CLAIM = "email";
     private static final String TOKEN_PREFIX = "Bearer ";
     private static final String ACCESS_SECRET = "MyAccessSecretKey1234";
