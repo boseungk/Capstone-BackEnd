@@ -17,6 +17,8 @@ import io.awspring.cloud.sqs.operations.SqsTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,32 +55,38 @@ public class StylingService {
                 () -> new Exception400(ErrorCode.USER_NOT_FOUND)
         );
         final List<String> imageUrls = deserializeImageUrls(user.getUserImages());
-        return enqueuePromptRequestAsync(request, imageUrls);
-//        sqsTemplate.send(requestWordsQueueUrl, PromptWithWordsRequest.of(request.words(), imageUrls));
-//        final CompletableFuture<String> future = new CompletableFuture<>();
-//        queue.add(future);
-//        return Objects.requireNonNull(queue.peek())
-//                .thenCompose(s -> queue.poll());
+        return enqueuePromptRequestSync(request, imageUrls);
+//        return enqueuePromptRequestAsync(request, imageUrls);
+    }
+
+    private CompletableFuture<String> enqueuePromptRequestSync(StylingWordsRequest request, List<String> imageUrls) {
+        sqsTemplate.send(requestWordsQueueUrl, PromptWithWordsRequest.of(request.inputs(), imageUrls));
+        final CompletableFuture<String> future = new CompletableFuture<>();
+        queue.add(future);
+        return Objects.requireNonNull(queue.peek())
+                .thenCompose(s -> queue.poll());
     }
 
     private CompletableFuture<String> enqueuePromptRequestAsync(StylingWordsRequest request, List<String> imageUrls) {
         return CompletableFuture.runAsync(
                         () -> {
                             log.info("-----------------------1");
-                            sqsTemplate.send(requestWordsQueueUrl, PromptWithWordsRequest.of(request.words(), imageUrls));
+                            sqsTemplate.sendAsync(requestWordsQueueUrl, PromptWithWordsRequest.of(request.inputs(), imageUrls));
                             log.info("-----------------------2");
                         })
-                .thenRun(() -> {
+                .thenComposeAsync(cf -> {
                     log.info("-----------------------3");
-                    queue.add(new CompletableFuture<String>());
+                    CompletableFuture<String> future = new CompletableFuture<>();
+                    queue.add(future);
                     log.info("-----------------------4");
+                    return future;
                 })
-                .thenApply(c -> {
-                    log.info("-----------------------7");
+                .thenCompose(c -> {
+                    log.info("-----------------------6");
                     return Objects.requireNonNull(queue.peek());
                 })
                 .thenCompose(s -> {
-                    log.info("-----------------------8");
+                    log.info("-----------------------7");
                     return queue.poll();
                 });
     }
@@ -96,14 +104,15 @@ public class StylingService {
                 .thenCompose(s -> queue.poll());
     }
 
-    @SqsListener("responseQueue")
-    private void receiveMessage(final String message){
+    @Async
+    @SqsListener(value = "responseQueue")
+    protected void receiveMessage(String message) {
+        log.info(message);
         log.info("-----------------------5");
         final CompletableFuture<String> future = queue.peek();
         if (null != future) {
             future.complete(message);
         }
-        log.info("-----------------------6");
     }
 
     public CompletableFuture<String> getImageWithSentences(final StylingWordsRequest request, final Long id) throws JsonProcessingException {
@@ -111,7 +120,7 @@ public class StylingService {
                 () -> new Exception400(ErrorCode.USER_NOT_FOUND)
         );
         final List<String> imageUrls = deserializeImageUrls(user.getUserImages());
-        sqsTemplate.send(requestSentencesQueueUrl, PromptWithWordsRequest.of(request.words(), imageUrls));
+        sqsTemplate.send(requestSentencesQueueUrl, PromptWithWordsRequest.of(request.inputs(), imageUrls));
         return imageResponseFuture();
     }
 }
