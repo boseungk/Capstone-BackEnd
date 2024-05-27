@@ -70,23 +70,17 @@ public class StylingService {
     private CompletableFuture<String> enqueuePromptRequestAsync(StylingWordsRequest request, List<String> imageUrls) {
         return CompletableFuture.runAsync(
                         () -> {
-                            log.info("-----------------------1");
                             sqsTemplate.sendAsync(requestWordsQueueUrl, PromptWithWordsRequest.of(request.inputs(), imageUrls));
-                            log.info("-----------------------2");
                         })
                 .thenComposeAsync(cf -> {
-                    log.info("-----------------------3");
                     CompletableFuture<String> future = new CompletableFuture<>();
                     queue.add(future);
-                    log.info("-----------------------4");
                     return future;
                 })
                 .thenCompose(c -> {
-                    log.info("-----------------------6");
                     return Objects.requireNonNull(queue.peek());
                 })
                 .thenCompose(s -> {
-                    log.info("-----------------------7");
                     return queue.poll();
                 });
     }
@@ -107,8 +101,6 @@ public class StylingService {
     @Async
     @SqsListener(value = "responseQueue")
     protected void receiveMessage(String message) {
-        log.info(message);
-        log.info("-----------------------5");
         final CompletableFuture<String> future = queue.peek();
         if (null != future) {
             future.complete(message);
