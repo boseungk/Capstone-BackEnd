@@ -26,6 +26,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Transactional
 @Service
@@ -52,8 +53,34 @@ public class StylingService {
                 () -> new Exception400(ErrorCode.USER_NOT_FOUND)
         );
         final List<String> imageUrls = deserializeImageUrls(user.getUserImages());
-        sqsTemplate.send(requestWordsQueueUrl, PromptWithWordsRequest.of(request.words(), imageUrls));
-        return imageResponseFuture();
+        return enqueuePromptRequestAsync(request, imageUrls);
+//        sqsTemplate.send(requestWordsQueueUrl, PromptWithWordsRequest.of(request.words(), imageUrls));
+//        final CompletableFuture<String> future = new CompletableFuture<>();
+//        queue.add(future);
+//        return Objects.requireNonNull(queue.peek())
+//                .thenCompose(s -> queue.poll());
+    }
+
+    private CompletableFuture<String> enqueuePromptRequestAsync(StylingWordsRequest request, List<String> imageUrls) {
+        return CompletableFuture.runAsync(
+                        () -> {
+                            log.info("-----------------------1");
+                            sqsTemplate.send(requestWordsQueueUrl, PromptWithWordsRequest.of(request.words(), imageUrls));
+                            log.info("-----------------------2");
+                        })
+                .thenRun(() -> {
+                    log.info("-----------------------3");
+                    queue.add(new CompletableFuture<String>());
+                    log.info("-----------------------4");
+                })
+                .thenApply(c -> {
+                    log.info("-----------------------7");
+                    return Objects.requireNonNull(queue.peek());
+                })
+                .thenCompose(s -> {
+                    log.info("-----------------------8");
+                    return queue.poll();
+                });
     }
 
     private List<String> deserializeImageUrls(final String imgUrls) throws JsonProcessingException {
@@ -71,10 +98,12 @@ public class StylingService {
 
     @SqsListener("responseQueue")
     private void receiveMessage(final String message){
+        log.info("-----------------------5");
         final CompletableFuture<String> future = queue.peek();
         if (null != future) {
             future.complete(message);
         }
+        log.info("-----------------------6");
     }
 
     public CompletableFuture<String> getImageWithSentences(final StylingWordsRequest request, final Long id) throws JsonProcessingException {
