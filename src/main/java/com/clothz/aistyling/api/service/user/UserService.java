@@ -33,13 +33,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
 
-    public UserSignUpResponse signUp(final UserCreateRequest request, final List<String> imgUrls) throws IOException {
+    public UserSignUpResponse signUp(final UserCreateRequest request){
         checkSameEmail(request.email());
         final String encodePassword = passwordEncoder.encode(request.password());
         final User user = userRepository.save(createUserEntity(request, encodePassword));
-        if(!imgUrls.isEmpty()){
-            uploadUserImg(imgUrls, user.getId());
-        }
         return UserSignUpResponse.from(user);
     }
 

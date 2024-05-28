@@ -101,7 +101,7 @@ class StylingServiceTest {
     void getImageWithWords() throws JsonProcessingException {
         //given
         final StylingWordsRequest wordsRequest = StylingWordsRequest.builder()
-                .words("스트릿 패션")
+                .inputs("스트릿 패션")
                 .build();
         final StylingImageResponse mockResponse = StylingImageResponse.builder()
                 .images(List.of("generatedImage1.png"))

@@ -85,7 +85,7 @@ class UserServiceTest {
         final var images = List.of("image1.png", "images2.png");
 
         //when
-        final UserSignUpResponse userSingUpResponse = userService.signUp(request, images);
+        final UserSignUpResponse userSingUpResponse = userService.signUp(request);
 
         //then
         assertThat(userSingUpResponse.email()).isEqualTo(ANOTHER_EMAIL);
@@ -106,7 +106,7 @@ class UserServiceTest {
         //when
         //then
         Assertions.assertThatThrownBy(() -> {
-                    userService.signUp(request, images);
+                    userService.signUp(request);
                 }).isInstanceOf(Exception409.class)
                 .hasMessageContaining("이미 존재하는 유저입니다");
     }

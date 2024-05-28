@@ -37,24 +37,18 @@ public class UserController {
     private final UserService userService;
     private final S3Service s3Service;
 
-    @PostMapping(value="/signup", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "사용자 이메일, 닉네임, 비밀번호를 입력받아 회원가입한다")
     @Parameters({
             @Parameter(name = "request.email", description = "이메일 형식으로 작성해주세요"),
-            @Parameter(name = "request.nickname", description = "3에서 20자 이내여야 합니다"),
+            @Parameter(name = "request.email", description = "3에서 20자 이내여야 합니다"),
             @Parameter(name = "request.password", description = "8에서 20자 이내여야 합니다. " +
                     "영문, 숫자, 특수문자가 포함되어야하고 공백이 포함될 수 없습니다.")
     })
     public ApiResponse<UserSignUpResponse> signUp(
-            @RequestPart("request") @Valid
-            final UserCreateRequest request,
-            @RequestPart(value="images", required = false)
-            final List<MultipartFile> images
-    ) throws IOException {
-        final List<String> imgUrls = new ArrayList<>();
-        if(null != images)
-            imgUrls.addAll(s3Service.upload(images));
-        final var userSingUpResponse = userService.signUp(request, imgUrls);
+            @RequestBody @Valid
+            final UserCreateRequest request){
+        final var userSingUpResponse = userService.signUp(request);
         return ApiResponse.ok(userSingUpResponse);
     }
 
@@ -85,7 +79,7 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "회원정보 수정하기", description = "토큰을 기반으로 사용자의 회원정보를 수정한다")
     @Parameters({
-            @Parameter(name = "request.nickname", description = "3에서 20자 이내여야 합니다."),
+            @Parameter(name = "request.email", description = "3에서 20자 이내여야 합니다."),
             @Parameter(name = "request.password", description = "8에서 20자 이내여야 합니다. " +
                     "영문, 숫자, 특수문자가 포함되어야하고 공백이 포함될 수 없습니다.")
     })
