@@ -7,21 +7,18 @@ import lombok.Builder;
 
 @Schema(description = "유저 변경 response")
 public record UserUpdateResponse(@Schema(description = "유저 변경 이메일") String email,
-                                 @Schema(description = "유저 변경 닉네임") String nickname,
-                                 @Schema(description = "유저 변경 패스워드") String password) {
+                                 @Schema(description = "유저 변경 닉네임") String nickname) {
 
     @Builder
-    public UserUpdateResponse(String email, String nickname, String password) {
+    public UserUpdateResponse(String email, String nickname) {
         this.email = email;
         this.nickname = nickname;
-        this.password = password;
     }
 
     public static UserUpdateResponse from(User user){
         return UserUpdateResponse.builder()
                 .email(user.getEmail())
                 .nickname(user.getNickname())
-                .password(user.getPassword())
                 .build();
     }
 }

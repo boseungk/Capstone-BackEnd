@@ -26,6 +26,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Transactional
 @Service
@@ -52,8 +53,30 @@ public class StylingService {
                 () -> new Exception400(ErrorCode.USER_NOT_FOUND)
         );
         final List<String> imageUrls = deserializeImageUrls(user.getUserImages());
-        sqsTemplate.send(requestWordsQueueUrl, PromptWithWordsRequest.of(request.words(), imageUrls));
-        return imageResponseFuture();
+        return enqueuePromptRequest(request.inputs(), imageUrls);
+//        return enqueuePromptRequestLambda(request.inputs(), imageUrls);
+    }
+
+    private CompletableFuture<String> enqueuePromptRequest(final String inputs, final List<String> imageUrls) {
+        sqsTemplate.send(requestWordsQueueUrl, PromptWithWordsRequest.of(inputs, imageUrls));
+        final CompletableFuture<String> future = new CompletableFuture<>();
+        queue.add(future);
+        return Objects.requireNonNull(queue.peek())
+                .thenCompose(s -> queue.poll());
+    }
+
+    private CompletableFuture<String> enqueuePromptRequestLambda(final String inputs, final List<String> imageUrls) {
+        return CompletableFuture.runAsync(
+                        () -> {
+                            sqsTemplate.sendAsync(requestWordsQueueUrl, PromptWithWordsRequest.of(inputs, imageUrls));
+                        })
+                .thenComposeAsync(cf -> {
+                    final CompletableFuture<String> future = new CompletableFuture<>();
+                    queue.add(future);
+                    return future;
+                })
+                .thenCompose(c -> Objects.requireNonNull(queue.peek()))
+                .thenCompose(s -> queue.poll());
     }
 
     private List<String> deserializeImageUrls(final String imgUrls) throws JsonProcessingException {
@@ -70,10 +93,11 @@ public class StylingService {
     }
 
     @SqsListener("responseQueue")
-    private void receiveMessage(final String message){
+    private void receiveMessage(final String message) throws JsonProcessingException {
+        final String responseMessage = objectMapper.readValue(message, String.class);
         final CompletableFuture<String> future = queue.peek();
         if (null != future) {
-            future.complete(message);
+            future.complete(responseMessage);
         }
     }
 
@@ -82,7 +106,7 @@ public class StylingService {
                 () -> new Exception400(ErrorCode.USER_NOT_FOUND)
         );
         final List<String> imageUrls = deserializeImageUrls(user.getUserImages());
-        sqsTemplate.send(requestSentencesQueueUrl, PromptWithWordsRequest.of(request.words(), imageUrls));
+        sqsTemplate.send(requestSentencesQueueUrl, PromptWithWordsRequest.of(request.inputs(), imageUrls));
         return imageResponseFuture();
     }
 }
