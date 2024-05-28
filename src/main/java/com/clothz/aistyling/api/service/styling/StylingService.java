@@ -35,10 +35,10 @@ public class StylingService {
     private String requestWordsQueueUrl;
     @Value("${spring.cloud.aws.sqs.queue.url2}")
     private String requestSentencesQueueUrl;
-    private final ObjectMapper objectMapper;
     private final SqsTemplate sqsTemplate;
     private final UserRepository userRepository;
     private final StylingRepository stylingRepository;
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final ConcurrentLinkedQueue<CompletableFuture<String>> queue = new ConcurrentLinkedQueue<>();
 
     public List<StylingExampleResponse> getImageAndPrompt() {
@@ -94,6 +94,7 @@ public class StylingService {
 
     @SqsListener("responseQueue")
     private void receiveMessage(final String message) throws JsonProcessingException {
+        if(message == null) return;
         final String responseMessage = objectMapper.readValue(message, String.class);
         final CompletableFuture<String> future = queue.peek();
         if (null != future) {
