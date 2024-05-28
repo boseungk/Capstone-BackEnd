@@ -17,8 +17,6 @@ import io.awspring.cloud.sqs.operations.SqsTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,34 +53,30 @@ public class StylingService {
                 () -> new Exception400(ErrorCode.USER_NOT_FOUND)
         );
         final List<String> imageUrls = deserializeImageUrls(user.getUserImages());
-        return enqueuePromptRequestSync(request, imageUrls);
-//        return enqueuePromptRequestAsync(request, imageUrls);
+        return enqueuePromptRequest(request.inputs(), imageUrls);
+//        return enqueuePromptRequestLambda(request.inputs(), imageUrls);
     }
 
-    private CompletableFuture<String> enqueuePromptRequestSync(StylingWordsRequest request, List<String> imageUrls) {
-        sqsTemplate.send(requestWordsQueueUrl, PromptWithWordsRequest.of(request.inputs(), imageUrls));
+    private CompletableFuture<String> enqueuePromptRequest(final String inputs, final List<String> imageUrls) {
+        sqsTemplate.send(requestWordsQueueUrl, PromptWithWordsRequest.of(inputs, imageUrls));
         final CompletableFuture<String> future = new CompletableFuture<>();
         queue.add(future);
         return Objects.requireNonNull(queue.peek())
                 .thenCompose(s -> queue.poll());
     }
 
-    private CompletableFuture<String> enqueuePromptRequestAsync(StylingWordsRequest request, List<String> imageUrls) {
+    private CompletableFuture<String> enqueuePromptRequestLambda(final String inputs, final List<String> imageUrls) {
         return CompletableFuture.runAsync(
                         () -> {
-                            sqsTemplate.sendAsync(requestWordsQueueUrl, PromptWithWordsRequest.of(request.inputs(), imageUrls));
+                            sqsTemplate.sendAsync(requestWordsQueueUrl, PromptWithWordsRequest.of(inputs, imageUrls));
                         })
                 .thenComposeAsync(cf -> {
-                    CompletableFuture<String> future = new CompletableFuture<>();
+                    final CompletableFuture<String> future = new CompletableFuture<>();
                     queue.add(future);
                     return future;
                 })
-                .thenCompose(c -> {
-                    return Objects.requireNonNull(queue.peek());
-                })
-                .thenCompose(s -> {
-                    return queue.poll();
-                });
+                .thenCompose(c -> Objects.requireNonNull(queue.peek()))
+                .thenCompose(s -> queue.poll());
     }
 
     private List<String> deserializeImageUrls(final String imgUrls) throws JsonProcessingException {
@@ -98,12 +92,12 @@ public class StylingService {
                 .thenCompose(s -> queue.poll());
     }
 
-    @Async
-    @SqsListener(value = "responseQueue")
-    protected void receiveMessage(String message) {
+    @SqsListener("responseQueue")
+    private void receiveMessage(final String message) throws JsonProcessingException {
+        final String responseMessage = objectMapper.readValue(message, String.class);
         final CompletableFuture<String> future = queue.peek();
         if (null != future) {
-            future.complete(message);
+            future.complete(responseMessage);
         }
     }
 
