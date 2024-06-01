@@ -7,6 +7,7 @@ import lombok.*;
 import java.util.Objects;
 
 @Getter
+@EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 @Table(name = "styling")
@@ -26,17 +27,5 @@ public class Styling extends BaseEntity{
     public Styling(final String image, final String prompt) {
         this.image = image;
         this.prompt = prompt;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Styling styling)) return false;
-        return Objects.equals(id, styling.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
     }
 }
