@@ -33,8 +33,6 @@ import java.util.stream.Collectors;
 public class StylingService {
     @Value("${spring.cloud.aws.sqs.queue.url1}")
     private String requestWordsQueueUrl;
-    @Value("${spring.cloud.aws.sqs.queue.url2}")
-    private String requestSentencesQueueUrl;
     private final SqsTemplate sqsTemplate;
     private final UserRepository userRepository;
     private final StylingRepository stylingRepository;
@@ -85,13 +83,6 @@ public class StylingService {
         });
     }
 
-    private CompletableFuture<String> imageResponseFuture() {
-        final CompletableFuture<String> future = new CompletableFuture<>();
-        queue.add(future);
-        return Objects.requireNonNull(queue.peek())
-                .thenCompose(s -> queue.poll());
-    }
-
     @SqsListener("responseQueue")
     private void receiveMessage(final String message) throws JsonProcessingException {
         if(message == null) return;
@@ -100,14 +91,5 @@ public class StylingService {
         if (null != future) {
             future.complete(responseMessage);
         }
-    }
-
-    public CompletableFuture<String> getImageWithSentences(final StylingWordsRequest request, final Long id) throws JsonProcessingException {
-        final User user = userRepository.findById(id).orElseThrow(
-                () -> new Exception400(ErrorCode.USER_NOT_FOUND)
-        );
-        final List<String> imageUrls = deserializeImageUrls(user.getUserImages());
-        sqsTemplate.send(requestSentencesQueueUrl, PromptWithWordsRequest.of(request.inputs(), imageUrls));
-        return imageResponseFuture();
     }
 }

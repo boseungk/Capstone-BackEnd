@@ -44,15 +44,4 @@ public class StylingController {
         final var imageResponseFuture = stylingService.getImageWithWords(request, userDetails.getId());
         return imageResponseFuture.thenApply(ApiResponse::ok);
     }
-
-    @PostMapping("/styling/sentences")
-    @PreAuthorize("hasRole('ROLE_USER')")
-    @Operation(summary = "스타일 이미지 선택", description = "사용자가 이미지를 클릭하면 관련 문장을 서버로 전달")
-    @Parameter(name = "request.inputs", description = "이미지 관련 단어들")
-    public CompletableFuture<ApiResponse<String>> getImageWithSentences(
-            @RequestBody @Valid final StylingWordsRequest request,
-            @AuthenticationPrincipal final CustomUserDetails userDetails) throws JsonProcessingException {
-        final var imageResponseFuture = stylingService.getImageWithSentences(request, userDetails.getId());
-        return imageResponseFuture.thenApply(ApiResponse::ok);
-    }
 }
