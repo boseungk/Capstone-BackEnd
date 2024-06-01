@@ -8,6 +8,7 @@ import lombok.*;
 import java.util.Objects;
 
 @Getter
+@EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 @Table(name = "member")
@@ -53,17 +54,5 @@ public class User extends BaseEntity {
         this.password = password;
         this.userImages = userImages;
         this.userRole = userRole;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (!(o instanceof User user)) return false;
-        return Objects.equals(id, user.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
     }
 }
