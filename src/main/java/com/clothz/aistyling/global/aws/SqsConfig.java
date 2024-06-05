@@ -1,5 +1,8 @@
 package com.clothz.aistyling.global.aws;
 
+import io.awspring.cloud.sqs.config.SqsMessageListenerContainerFactory;
+import io.awspring.cloud.sqs.listener.MessageListenerContainer;
+import io.awspring.cloud.sqs.listener.SqsMessageListenerContainer;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -35,6 +38,12 @@ public class SqsConfig {
     @Bean
     public SqsTemplate sqsTemplate() {
         return SqsTemplate.builder()
+                .sqsAsyncClient(sqsAsyncClient())
+                .build();
+    }
+    @Bean
+    public SqsMessageListenerContainerFactory<Object> defaultSqsListenerContainerFactory() {
+        return SqsMessageListenerContainerFactory.builder()
                 .sqsAsyncClient(sqsAsyncClient())
                 .build();
     }
