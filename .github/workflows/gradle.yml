@@ -103,9 +103,10 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
 
           script: |
-            sudo docker kill ${{ secrets.PROJECT_NAME }}
-            sudo docker rm -f ${{ secrets.PROJECT_NAME }}
+            sudo docker kill $(docker ps -qa)
+            sudo docker rm -f $(docker ps -qa)
             sudo docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.PROJECT_NAME }}
+            sudo docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.PROJECT_NAME_FRONT }}
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.PROJECT_NAME }}
-            
-            sudo docker run -d -p ${{ secrets.PORT }}:${{ secrets.PORT }} -e GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }} -e AWS_SQS_URL_SENTENCES=${{ secrets.AWS_SQS_URL_SENTENCES }} -e AWS_SQS_URL_WORDS=${{ secrets.AWS_SQS_URL_WORDS }} -e DB_URL=${{ secrets.DB_URL }} -e DB_USERNAME=${{ secrets.DB_USERNAME }} -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} --name ${{ secrets.PROJECT_NAME }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.PROJECT_NAME }}
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.PROJECT_NAME_FRONT }}
+            sudo docker-compose up -e GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }} -e AWS_SQS_URL_SENTENCES=${{ secrets.AWS_SQS_URL_SENTENCES }} -e AWS_SQS_URL_WORDS=${{ secrets.AWS_SQS_URL_WORDS }} -e DB_URL=${{ secrets.DB_URL }} -e DB_USERNAME=${{ secrets.DB_USERNAME }} -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
