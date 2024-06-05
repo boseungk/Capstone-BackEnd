@@ -83,21 +83,19 @@ class UserControllerTest {
         em.flush();
         em.clear();
     }
-        
+
     @DisplayName("회원 가입에 성공한다.")
     @Test
     void signUp() throws Exception {
         //given
-        final UserCreateRequest userRequest = createUser(ANOTHER_EMAIL, NICKNAME, PASSWORD);
-        final MockMultipartFile request = new MockMultipartFile("request", null, "application/json", objectMapper.writeValueAsString(userRequest).getBytes(StandardCharsets.UTF_8));
+        UserCreateRequest request = createUser(ANOTHER_EMAIL, NICKNAME, PASSWORD);
 
         //when
         //then
         mockMvc.perform(
-                        multipart(HttpMethod.POST, "/api/signup")
-                                .file(request)
-                                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                                .accept(MediaType.APPLICATION_JSON)
+                        post("/api/signup")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -110,16 +108,14 @@ class UserControllerTest {
     @Test
     void signUpWithEmailFormat() throws Exception{
         //given
-        final UserCreateRequest userRequest = createUser("user12@gmail", NICKNAME, PASSWORD);
-        final MockMultipartFile request = new MockMultipartFile("request", null, "application/json", objectMapper.writeValueAsString(userRequest).getBytes(StandardCharsets.UTF_8));
+        UserCreateRequest request = createUser("user12@gmail", NICKNAME, PASSWORD);
 
         //when
         //then
         mockMvc.perform(
-                        multipart(HttpMethod.POST, "/api/signup")
-                                .file(request)
-                                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                                .accept(MediaType.APPLICATION_JSON)
+                        post("/api/signup")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -127,24 +123,22 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
                 .andExpect(jsonPath("$.message").value("이메일 형식으로 작성해주세요"))
                 .andExpect(jsonPath("$.data").isEmpty());
-        
+
     }
     @DisplayName("회원 가입할 때 닉네임은 3글자 이상 20글자 이하이어야 한다.")
     @Test
     void signUpWithNickname3To20Characters() throws Exception{
         //given
-        final UserCreateRequest userRequest1 = createUser(EMAIL, "1", PASSWORD);
-        final UserCreateRequest userRequest2 = createUser(EMAIL, "123456789012345678901", PASSWORD);
-        final MockMultipartFile request1 = new MockMultipartFile("request", null, "application/json", objectMapper.writeValueAsString(userRequest1).getBytes(StandardCharsets.UTF_8));
-        final MockMultipartFile request2 = new MockMultipartFile("request", null, "application/json", objectMapper.writeValueAsString(userRequest2).getBytes(StandardCharsets.UTF_8));
+        UserCreateRequest request1 = createUser(EMAIL, "1", PASSWORD);
+        UserCreateRequest request2 = createUser(EMAIL, "123456789012345678901", PASSWORD);
 
         //when
         //then
+        // 3글자 이하의 경우
         mockMvc.perform(
-                        multipart(HttpMethod.POST, "/api/signup")
-                                .file(request1)
-                                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                                .accept(MediaType.APPLICATION_JSON)
+                        post("/api/signup")
+                                .content(objectMapper.writeValueAsString(request1))
+                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -154,10 +148,9 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.data").isEmpty());
         // 20글자 이상의 경우
         mockMvc.perform(
-                        multipart(HttpMethod.POST, "/api/signup")
-                                .file(request2)
-                                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                                .accept(MediaType.APPLICATION_JSON)
+                        post("/api/signup")
+                                .content(objectMapper.writeValueAsString(request1))
+                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -171,16 +164,14 @@ class UserControllerTest {
     @Test
     void signUpWithSecurePassword() throws Exception{
         //given
-        final UserCreateRequest userRequest = createUser(EMAIL, NICKNAME, "password");
-        final MockMultipartFile request = new MockMultipartFile("request", null, "application/json", objectMapper.writeValueAsString(userRequest).getBytes(StandardCharsets.UTF_8));
+        UserCreateRequest request = createUser(EMAIL, NICKNAME, "password");
 
         //when
         //then
         mockMvc.perform(
-                        multipart(HttpMethod.POST, "/api/signup")
-                                .file(request)
-                                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                                .accept(MediaType.APPLICATION_JSON)
+                        post("/api/signup")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
