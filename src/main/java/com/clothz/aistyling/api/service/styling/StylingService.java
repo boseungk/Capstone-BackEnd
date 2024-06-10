@@ -52,7 +52,6 @@ public class StylingService {
         );
         final List<String> imageUrls = deserializeImageUrls(user.getUserImages());
         return enqueuePromptRequest(request.inputs(), imageUrls);
-//        return enqueuePromptRequestLambda(request.inputs(), imageUrls);
     }
 
     private CompletableFuture<String> enqueuePromptRequest(final String inputs, final List<String> imageUrls) {
@@ -60,20 +59,6 @@ public class StylingService {
         final CompletableFuture<String> future = new CompletableFuture<>();
         queue.add(future);
         return Objects.requireNonNull(queue.peek())
-                .thenCompose(s -> queue.poll());
-    }
-
-    private CompletableFuture<String> enqueuePromptRequestLambda(final String inputs, final List<String> imageUrls) {
-        return CompletableFuture.runAsync(
-                        () -> {
-                            sqsTemplate.sendAsync(requestWordsQueueUrl, PromptWithWordsRequest.of(inputs, imageUrls));
-                        })
-                .thenComposeAsync(cf -> {
-                    final CompletableFuture<String> future = new CompletableFuture<>();
-                    queue.add(future);
-                    return future;
-                })
-                .thenCompose(c -> Objects.requireNonNull(queue.peek()))
                 .thenCompose(s -> queue.poll());
     }
 
