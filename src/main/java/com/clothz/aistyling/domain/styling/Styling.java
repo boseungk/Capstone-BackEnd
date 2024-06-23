@@ -7,7 +7,7 @@ import lombok.*;
 import java.util.Objects;
 
 @Getter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 @Table(name = "styling")
