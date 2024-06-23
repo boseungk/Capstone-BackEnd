@@ -1,12 +1,14 @@
 package com.clothz.aistyling.api.controller.user;
 
 import com.clothz.aistyling.api.controller.user.request.UserCreateRequest;
-import com.clothz.aistyling.api.service.user.UserService;
+import com.clothz.aistyling.api.controller.user.request.UserUpdateRequest;
 import com.clothz.aistyling.domain.user.User;
 import com.clothz.aistyling.domain.user.UserRepository;
 import com.clothz.aistyling.domain.user.constant.UserRole;
+import com.clothz.aistyling.util.WithMockCustomUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,21 +16,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -50,21 +50,20 @@ class UserControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
+    private EntityManager entityManager;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
     private EntityManager em;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private PasswordEncoder delegatingPasswordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    @Autowired
-    private UserController userController;
+
 
     @BeforeEach
     void beforeEach() {
@@ -78,6 +77,11 @@ class UserControllerTest {
             userRepository.save(user);
             clear();
     }
+    @AfterEach
+    void afterEach() {
+        entityManager.createNativeQuery("DELETE FROM member").executeUpdate();
+        entityManager.createNativeQuery("ALTER TABLE member ALTER COLUMN `id` RESTART WITH 1").executeUpdate();
+    }
 
     private void clear() {
         em.flush();
@@ -88,7 +92,7 @@ class UserControllerTest {
     @Test
     void signUp() throws Exception {
         //given
-        UserCreateRequest request = createUser(ANOTHER_EMAIL, NICKNAME, PASSWORD);
+        final UserCreateRequest request = createUser(ANOTHER_EMAIL, NICKNAME, PASSWORD);
 
         //when
         //then
@@ -108,7 +112,7 @@ class UserControllerTest {
     @Test
     void signUpWithEmailFormat() throws Exception{
         //given
-        UserCreateRequest request = createUser("user12@gmail", NICKNAME, PASSWORD);
+        final UserCreateRequest request = createUser("user12@gmail", NICKNAME, PASSWORD);
 
         //when
         //then
@@ -129,8 +133,8 @@ class UserControllerTest {
     @Test
     void signUpWithNickname3To20Characters() throws Exception{
         //given
-        UserCreateRequest request1 = createUser(EMAIL, "1", PASSWORD);
-        UserCreateRequest request2 = createUser(EMAIL, "123456789012345678901", PASSWORD);
+        final UserCreateRequest request1 = createUser(EMAIL, "1", PASSWORD);
+        final UserCreateRequest request2 = createUser(EMAIL, "123456789012345678901", PASSWORD);
 
         //when
         //then
@@ -164,7 +168,7 @@ class UserControllerTest {
     @Test
     void signUpWithSecurePassword() throws Exception{
         //given
-        UserCreateRequest request = createUser(EMAIL, NICKNAME, "password");
+        final UserCreateRequest request = createUser(EMAIL, NICKNAME, "password");
 
         //when
         //then
@@ -189,7 +193,7 @@ class UserControllerTest {
 
         //when
         //then
-        final ResultActions result = mockMvc.perform(
+        mockMvc.perform(
                 post("/api/login")
                         .content(objectMapper.writeValueAsString(usernamePasswordMap))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -210,7 +214,7 @@ class UserControllerTest {
 
         //when
         //then
-        final ResultActions result = mockMvc.perform(
+        mockMvc.perform(
                         post("/api/login")
                                 .content(objectMapper.writeValueAsString(usernamePasswordMap))
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -221,6 +225,42 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.status").value("UNAUTHORIZED"))
                 .andExpect(jsonPath("$.message").value("Bad credentials"))
                 .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @DisplayName("회원 정보 조회에 성공한다.")
+    @WithMockCustomUser
+    @Test
+    void getUserInfo() throws Exception {
+        //given
+        //when
+        //then
+        mockMvc.perform(get("/api/users"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("OK"))
+                .andExpect(jsonPath("$.data.email").value(EMAIL))
+                .andExpect(jsonPath("$.data.nickname").value(NICKNAME));
+    }
+
+    @DisplayName("회원 정보 수정에 성공한다.")
+    @WithMockCustomUser
+    @Test
+    void updateUser() throws Exception {
+        //given
+        final UserUpdateRequest userUpdateRequest = UserUpdateRequest.builder().nickname("newNickname").password("newPassword1!").build();
+
+        //when
+        //then
+        mockMvc.perform(post("/api/users")
+                        .content(objectMapper.writeValueAsString(userUpdateRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("OK"))
+                .andExpect(jsonPath("$.data.nickname").value("newNickname"));
+
     }
 
     private UserCreateRequest createUser(final String email, final String nickname, final String password) {
