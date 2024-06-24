@@ -51,15 +51,9 @@ public class StylingService {
                 () -> new Exception400(ErrorCode.USER_NOT_FOUND)
         );
         final List<String> imageUrls = deserializeImageUrls(user.getUserImages());
-        return enqueuePromptRequest(request.inputs(), imageUrls);
-    }
-
-    private CompletableFuture<String> enqueuePromptRequest(final String inputs, final List<String> imageUrls) {
-        sqsTemplate.send(requestWordsQueueUrl, PromptWithWordsRequest.of(inputs, imageUrls));
-        final CompletableFuture<String> future = new CompletableFuture<>();
-        queue.add(future);
-        return Objects.requireNonNull(queue.peek())
-                .thenCompose(s -> queue.poll());
+        sendRequestAIServer(request.inputs(), imageUrls);
+        initializeResponseOrderManagement();
+        return waitForAIResponse();
     }
 
     private List<String> deserializeImageUrls(final String imgUrls) throws JsonProcessingException {
@@ -68,13 +62,34 @@ public class StylingService {
         });
     }
 
+    private CompletableFuture<String> waitForAIResponse() {
+        return Objects.requireNonNull(queue.peek())
+                .thenCompose(s -> queue.poll());
+    }
+
+    private void initializeResponseOrderManagement() {
+        final CompletableFuture<String> future = new CompletableFuture<>();
+        queue.add(future);
+    }
+
+    private void sendRequestAIServer(String inputs, List<String> imageUrls) {
+        sqsTemplate.send(requestWordsQueueUrl, PromptWithWordsRequest.of(inputs, imageUrls));
+    }
+
     @SqsListener("responseQueue")
     private void receiveMessage(final String message) throws JsonProcessingException {
         if(message == null) return;
-        final String responseMessage = objectMapper.readValue(message, String.class);
-        final CompletableFuture<String> future = queue.peek();
-        if (null != future) {
-            future.complete(responseMessage);
-        }
+        final String parseMessage = parseMessage(message);
+        completeAIResponse(parseMessage);
+    }
+
+    private String parseMessage(String message) throws JsonProcessingException {
+        return objectMapper.readValue(message, String.class);
+    }
+
+    private void completeAIResponse(String responseMessage) {
+        final CompletableFuture<String> pendingFuture = queue.peek();
+        if (null != pendingFuture)
+            pendingFuture.complete(responseMessage);
     }
 }
