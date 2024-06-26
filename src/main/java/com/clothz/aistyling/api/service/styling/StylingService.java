@@ -62,9 +62,8 @@ public class StylingService {
         });
     }
 
-    private CompletableFuture<String> waitForAIResponse() {
-        return Objects.requireNonNull(queue.peek())
-                .thenCompose(s -> queue.poll());
+    private void sendRequestAIServer(String inputs, List<String> imageUrls) {
+        sqsTemplate.send(requestWordsQueueUrl, PromptWithWordsRequest.of(inputs, imageUrls));
     }
 
     private void initializeResponseOrderManagement() {
@@ -72,8 +71,9 @@ public class StylingService {
         queue.add(future);
     }
 
-    private void sendRequestAIServer(String inputs, List<String> imageUrls) {
-        sqsTemplate.send(requestWordsQueueUrl, PromptWithWordsRequest.of(inputs, imageUrls));
+    private CompletableFuture<String> waitForAIResponse() {
+        return Objects.requireNonNull(queue.peek())
+                .thenCompose(s -> queue.poll());
     }
 
     @SqsListener("responseQueue")
