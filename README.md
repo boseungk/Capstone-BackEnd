@@ -158,7 +158,7 @@
   - 외부 API(Google lens 관련 API)와 통신할 때, RestTemplate를 사용하여 통신 하려고 했습니다.
   - 하지만 RestTemplate이 동기적으로 요청을 처리한다는 것을 알게 되고, 마찬가지로 비동기적으로 요청을 처리할 방법을 고민하게 되었습니다.
 - **해결 방법**
-  - Webclient는 Reactor Netty를 기반으로 하여 비동기 방식으로 요청을 처리한다는 것을 알게 되어 외부 API 통신을 Webclient을 사용하게 되었습니다.
+  - RestTemplate과 달리 Webclient는 비동기 방식으로 요청을 처리한다는 것을 알게 되어 외부 API 통신에 Webclient을 사용하게 되었습니다.
 - **관련 블로그 글**
   - [Webclient를 이용한 외부 API 비동기 통신 구현하기](https://velog.io/@gda05189/Webclient%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-%EC%99%B8%EB%B6%80-API-%EB%B9%84%EB%8F%99%EA%B8%B0-%ED%86%B5%EC%8B%A0-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0)
   
