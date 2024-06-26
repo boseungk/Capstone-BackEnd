@@ -82,31 +82,31 @@
 ## 🚀 맡은 역할 및 기능 소개
 이 프로젝트에서 제가 역할을 맡은 파트는 크게 5가지로 나눌 수 있습니다.
 
-1. 스프링 서버와 AI 서버 간 통신
-2. 스프링 서버와 외부 API 간 통신
+1. 스프링 서버와 AI API 서버 간 통신
+2. 스프링 서버와 외부 API 서버 간 통신
 3. CI/CD 파이프라인 구축
-4. AI 모델 배포 및 AI 서버 구축 
+4. AI 모델 배포 및 AI API 서버 구축 
 5. 테스트 코드
 
 
 
-### 1. 스프링 서버와 AI 서버 간 통신 📌 [코드 확인](https://github.com/boseungk/Capstone-BackEnd/blob/main/src/main/java/com/clothz/aistyling/api/service/styling/StylingService.java)
+### 1. 스프링 서버와 AI API 서버 간 통신 📌 [코드 확인](https://github.com/boseungk/Capstone-BackEnd/blob/main/src/main/java/com/clothz/aistyling/api/service/styling/StylingService.java)
 
 ----------------------------------------------
 
 - **AWS SQS(Simple Queue Service)를 이용한 서버 간 통신 구현** 
   - AWS SQS를 이용하여 메시지 큐 기반으로 서버 간 통신이 이뤄집니다.
-  - AI 서버의 응답을 별도의 SQS 큐(responseQueue)로 수신합니다.
+  - AI API 서버의 응답을 별도의 SQS 큐(responseQueue)로 수신합니다.
 - **응답 메시지를 비동기적으로 처리**
   - 메시지 큐의 장점을 살리기 위해 CompletableFuture를 사용하여 비동기(non-blocking) 방식으로 요청을 처리합니다.
   - ConcurrentLinkedQueue로 응답의 순서를 관리합니다.
 
 
-### 2. 스프링 서버와 외부 API 간 통신 📌 [코드 확인](https://github.com/boseungk/Capstone-BackEnd/blob/main/src/main/java/com/clothz/aistyling/api/service/recommendation/RecommendService.java)
+### 2. 스프링 서버와 외부 API 서버 간 통신 📌 [코드 확인](https://github.com/boseungk/Capstone-BackEnd/blob/main/src/main/java/com/clothz/aistyling/api/service/recommendation/RecommendService.java)
 
 ----------------------------------------------
 
-- **Webclient를 이용한 외부 API 간 통신 구현**
+- **Webclient를 이용한 외부 API 서버 간 통신 구현**
   - Webclient로 HTTP 기반으로 외부 API(Google lens 관련 API) 통신합니다.
   - 스레드 자원을 효율적으로 사용하기 위해 비동기(non-blocking) 방식으로 통신합니다.
 
@@ -118,14 +118,14 @@
 - **GitHub Actions와 Docker 기반 CI/CD 구축**
   - CI/CD 파이프라인을 구축하여, 코드의 변경사항이 발생하면 자동으로 빌드 및 배포가 이뤄집니다.
 
-### 4. AI 모델 배포 및 AI 서버 구축 
+### 4. AI 모델 배포 및 AI API 서버 구축 
 
 ----------------------------------------------
 
-- **AWS Sagemaker를 통해 PhotoMaker 모델 배포** 📌 [코드 확인](https://github.com/boseungk/Capstone-BackEnd/blob/main/ai/sagemaker_notebook_success.ipynb)
+- **AWS Sagemaker를 통해 PhotoMaker 모델 배포** 📌 **[코드 확인](https://github.com/boseungk/Capstone-BackEnd/blob/main/ai/sagemaker_notebook_success.ipynb)**
   - AWS Sagemaker를 통해 PhotoMaker 모델을 배포하고 엔드포인트를 생성합니다.
-- **AWS Lambda를 통한 AI 서버 구축** 📌 [코드 확인](https://github.com/boseungk/Capstone-BackEnd/blob/main/ai/lambda.py)
-  - AWS Lambda를 활용하여 배포된 모델의 엔드포인트로 통신합니다
+- **AWS Lambda를 통한 AI API 서버 구축** 📌 **[코드 확인](https://github.com/boseungk/Capstone-BackEnd/blob/main/ai/lambda.py)**
+  - AWS Lambda를 이용하여 배포된 모델의 엔드포인트로 통신합니다
   - 사용자의 요청 값을 Google Gemini API를 활용하여 입력 프롬프트에 적합하게 재구성합니다.
 
 ### 5. 테스트 코드 📌 [코드 확인](https://github.com/boseungk/Capstone-BackEnd/tree/main/src/test/java/com/clothz/aistyling)
@@ -150,7 +150,8 @@
   - 스레드 자원을 효율적으로 사용하기 위해 CompletableFuture로 비동기적으로 요청을 처리하도록 구현했습니다.
   - 서버 내부에서는 ConcurrentLinkedQueue로 응답을 관리하도록 했습니다.
 - **관련 블로그 글**
-  - [AWS SQS를 이용한 서버 간 통신 구현하기]()
+  - [AWS SQS와 AWS Lambda로 서버 간 통신 구현하기](https://velog.io/@gda05189/AWS-SQS%EC%99%80-AWS-Lambda%EB%A1%9C-%EC%84%9C%EB%B2%84-%EA%B0%84-%ED%86%B5%EC%8B%A0-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0)
+  - [Spring에서 AWS SQS 요청, 응답 메시지 처리하기](https://velog.io/@gda05189/Spring%EC%97%90%EC%84%9C-AWS-SQS-%EC%9A%94%EC%B2%AD-%EC%9D%91%EB%8B%B5-%EB%A9%94%EC%8B%9C%EC%A7%80-%EC%B2%98%EB%A6%AC%ED%95%98%EA%B8%B0)
 
 ### 2. 스프링 서버와 외부 API 간 통신 시 동기 문제
 - **문제 상황**
@@ -159,7 +160,7 @@
 - **해결 방법**
   - Webclient는 Reactor Netty를 기반으로 하여 비동기 방식으로 요청을 처리한다는 것을 알게 되어 외부 API 통신을 Webclient을 사용하게 되었습니다.
 - **관련 블로그 글**
-  - [Webclient를 이용한 외부 API 비동기 통신 구현하기]()
+  - [Webclient를 이용한 외부 API 비동기 통신 구현하기](https://velog.io/@gda05189/Webclient%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-%EC%99%B8%EB%B6%80-API-%EB%B9%84%EB%8F%99%EA%B8%B0-%ED%86%B5%EC%8B%A0-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0)
   
 ### 3. AI 모델 배포 및 AI 서버 구축
 - **문제 상황**
@@ -169,9 +170,8 @@
   - AWS Sagemaker를 통해 PhotoMaker 모델을 배포하고 엔드포인트를 생성했습니다.
   - AWS Lambda를 활용하여 배포된 모델의 엔드포인트로 통신하도록 구현했습니다.
 - **관련 블로그 글**
-  - [AWS Sagemaker 및 AWS Lambda를 통해 AI 서버 배포하기]()
-  
-----------------------------------------------
+  - [AWS Sagemaker 모델 배포하기](https://velog.io/@gda05189/AWS-Sagemaker%EB%A1%9C-AI-%EB%AA%A8%EB%8D%B8-%EB%B0%B0%ED%8F%AC%ED%95%98%EA%B8%B0)
+
 
 ## 💣 기타 트러블 슈팅
 <details>
@@ -202,7 +202,18 @@
   - entityManager를 사용하여 DELETE, ALTER 쿼리로 데이터베이스를 초기화하는 방법을 사용하게 되었습니다.
 </div>
 </details> 
+<br>
+<details>
+<summary> 데이터베이스에 다중 이미지 저장 문제</summary>
+<div markdown="1">
 
+- **문제 상황**
+  - 이미지 한 장의 경우 String으로 변환하여 데이터베이스에 저장하면 되지만, 여러 장의 경우 어떤 식으로 이미지 URL들을 어떤 식으로 파싱하는지에 따라 저장 방식이 달라집니다.
+- **해결 방법**
+  - ["image1.jpeg", "image1.jpeg"]처럼 통채로 String으로 저장하고 ObjectMapper를 통해 역직렬화해서 이미지를 불러오는 방식을 선택하게 됐습니다.
+- **관련 블로그 글** 
+  - [RDB(MySQL)에 List 데이터를 저장하는 방법?](https://velog.io/@gda05189/RDBMySQL%EC%97%90-List-%EC%A0%80%EC%9E%A5%ED%95%98%EB%8A%94-%EB%B0%A9%EB%B2%95)
+</div>
+</details> 
 
-## 📅 회고 / 느낀점
->프로젝트 개발 회고 글: 
+<br>
